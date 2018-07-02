@@ -24,33 +24,35 @@ var Powerup = {
 
 	network: {
 		fetch: function(periods){
-			let dataToRetrieve = [];
+			return new Promise((resolve, reject)=>{
+				let dataToRetrieve = [];
 
-			for(var i = 0; i < periods; i++){
-				let startDate = new Date();
-				startDate.setDate(startDate.getDate() + (31 * i));
-				dataToRetrieve.push(this.network.getEventAvailability(startDate));
-			}
-
-			dataToRetrieve.push(this.network.getAllEvents());
-
-			Promise.all(dataToRetrieve).then(resolve=>{
-				let eventList = resolve.pop();
-
-				for(var evnt = 0; evnt < eventList.data.length; evnt++){
-					this.data.unprocessed.eventProducts.push(eventList.data[evnt])
+				for(var i = 0; i < periods; i++){
+					let startDate = new Date();
+					startDate.setDate(startDate.getDate() + (31 * i));
+					dataToRetrieve.push(Powerup.network.getEventAvailability(startDate));
 				}
 
-				for(var dataBlock = 0; dataBlock < resolve.length; dataBlock++){
-					for(var evntInstance = 0; evntInstance < resolve[dataBlock].data.length; evntInstance++){
-						let evnts = resolve[dataBlock].data;
-						this.data.unprocessed.eventData.push(evnts[evntInstance]);
+				dataToRetrieve.push(Powerup.network.getAllEvents());
+
+				Promise.all(dataToRetrieve).then(completed=>{
+					let eventList = completed.pop();
+
+					for(var evnt = 0; evnt < eventList.data.length; evnt++){
+						Powerup.data.unprocessed.eventProducts.push(eventList.data[evnt])
 					}
-				}
 
-				console.log("Data retrieval complete!");
-			}).catch(reject=>{
-				console.error(`Error has occurred: ${reject}`);
+					for(var dataBlock = 0; dataBlock < completed.length; dataBlock++){
+						for(var evntInstance = 0; evntInstance < completed[dataBlock].data.length; evntInstance++){
+							let evnts = completed[dataBlock].data;
+							Powerup.data.unprocessed.eventData.push(evnts[evntInstance]);
+						}
+					}
+
+					resolve("Data retrieval successful!");
+				}).catch(err=>{
+					reject(err);
+				})
 			})
 		},
 
@@ -60,11 +62,11 @@ var Powerup = {
 		 * can only return classes 31 days after a specified start date, so multiple
 		 * calls may have to be made.
 		 * @function getClassAvailability
-		 * @param {[type]} [varname] [description]
+		 * @param {Date} startDate - Date to begin with
 		 * @return {Promise} When resolved, the promise returns the availability of Bookeo products (31 days)
 		 */
 		getEventAvailability: function(startDate){
-			return this.request("GET", this.URL.get_availability, this.utils.generateDate(startDate));
+			return Powerup.network.request("GET", Powerup.URL.get_availability, Powerup.utils.generateDate(startDate));
 		},
 
 		/**
@@ -73,7 +75,7 @@ var Powerup = {
 		 * @return {Promise} When resolved, the promise will return all Bookeo products
 		 */
 	 	getAllEvents: function(){
-			return this.request("GET", this.URL.get_classes);
+			return Powerup.network.request("GET", Powerup.URL.get_classes);
 		},
 
 		/**
@@ -136,7 +138,7 @@ var Powerup = {
 				startTime: startDate.toISOString(),
 				endTime: endDate.toISOString(),
 			}
-			return this.utils.formatParameters(time);
+			return Powerup.utils.formatParameters(time);
 		}
 	},
 }
