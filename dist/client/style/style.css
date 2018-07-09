@@ -1,0 +1,18 @@
+table{
+	border-collapse: collapse;
+	width:100%;
+}
+td, th{
+	width: 33%
+}
+tr{
+	width: 100%;
+	background: linear-gradient(to bottom, #ffffff 0%, #dddddd 65%, #c6c6c6 100%);
+}
+#listing{
+	
+}
+#description{
+	text-align:center;
+	width: 100%;
+}
