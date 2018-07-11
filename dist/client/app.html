@@ -16,7 +16,7 @@
 			</tr>
 
 			<tr v-for='listing in processed_listings'
-			:key='listing.productId'
+			:key='listing._vueId'
 			@click='visible = !visible'>
 				<td v-if='visible'>{{listing.name}}</td>
 				<td v-if='visible'>{{listing.startDate}}</td>

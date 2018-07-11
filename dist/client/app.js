@@ -14,6 +14,7 @@ Powerup.network.fetch(2).then(resolve=>{
 	var tmpDate = new Date();
 	for(var listing = 0; listing < processed.length; listing++){
 		var tmpListing = processed[listing];
+		tmpListing._vueId = listing;
 		tmpListing.price = `$${tmpListing.defaultRates[0].price.amount}`;
 		//tmpListing.startDate = tmpDate.toDateString(tmpListing.courseSchedule.events[0].startTime);
 		//tmpListing.endDate = tmpDate.toDateString(tmpListing.courseSchedule.events[tmpListing.courseSchedule.length - 1].startTime);
