@@ -1,7 +1,7 @@
 Powerup.network.fetch(2).then(resolve=>{
 	let eventProducts = Powerup.data.unprocessed.eventProducts;
 	let eventData = Powerup.data.unprocessed.eventData;
-	let processed = [];//Powerup.data.processed;
+	let processed = [];
 
 	for(var data = 0; data < eventData.length; data++){
 		for(var product = 0; product < eventProducts.length; product++){
@@ -11,13 +11,23 @@ Powerup.network.fetch(2).then(resolve=>{
 			}
 		}
 	}
-	var tmpDate = new Date();
+
 	for(var listing = 0; listing < processed.length; listing++){
 		var tmpListing = processed[listing];
-		tmpListing._vueId = listing;
+		tmpListing.listing_key = listing;
 		tmpListing.price = `$${tmpListing.defaultRates[0].price.amount}`;
-		//tmpListing.startDate = tmpDate.toDateString(tmpListing.courseSchedule.events[0].startTime);
-		//tmpListing.endDate = tmpDate.toDateString(tmpListing.courseSchedule.events[tmpListing.courseSchedule.length - 1].startTime);
+
+		if(tmpListing.courseSchedule !== undefined){
+			let strDate = new Date(tmpListing.courseSchedule.events[0].startTime);
+			let endDate = new Date(tmpListing.courseSchedule.events[tmpListing.courseSchedule0.events.length - 1].startTime);
+			tmpListing.startDate = strDate.toDateString();
+			tmpListing.endDate = endDate.toDateString();
+		}else{
+			let strDate = new Date(tmpListing.startTime);
+			let endDate = new Date(tmpListing.endTime);
+			tmpListing.startDate = strDate.toDateString();
+			tmpListing.endDate = endDate.toDateString();
+		}
 
 		Powerup.data.processed.push(tmpListing);
 	}
