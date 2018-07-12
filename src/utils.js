@@ -5,9 +5,9 @@ var utils = {
 
 	/**
 	 * Used for authenticating user login
-	 * @param  {String} username - Username
-	 * @param  {String} password - Password
-	 * @return {Promise}          [description]
+	 * @param  {String} uname - Username
+	 * @param  {String} pword - Password
+	 * @return {Promise}          
 	 */
 	auth: function(uname, pword){
 		return network.request("POST", URL.auth_cust, undefined, {username: uname, password: pword})
@@ -16,8 +16,8 @@ var utils = {
 	/**
 	 * Converts the provided JSON object into a query string
 	 * @function formatParameters
-	 * @param  {Object} obj - Simple JSON object (key:val pairs)
-	 * @return {String} Formatted query string
+	 * @param  {Object} obj -  JSON object intended to be formatted into a JSON query string (key:val pairs)
+	 * @return {String} Query string
 	 */
 	formatParameters: function(obj){
 		let tempString = "?";

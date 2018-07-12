@@ -1,12 +1,17 @@
+/**
+ * Fetches 2 periods of data (62 days) from the bookeo API and processes it. Once processed
+ * it can be found in Powerup.data.processed[].
+ */
 Powerup.network.fetch(2).then(resolve=>{
-	let eventProducts = Powerup.data.unprocessed.eventProducts;
-	let eventData = Powerup.data.unprocessed.eventData;
-	let processed = [];
+	let eventProducts = Powerup.data.unprocessed.eventProducts; //all events created by owner
+	let eventData = Powerup.data.unprocessed.eventData; //actual events to be booked
+	let processed = []; //processed listings
 
 	for(var data = 0; data < eventData.length; data++){
 		for(var product = 0; product < eventProducts.length; product++){
 			if(eventProducts[product].productId === eventData[data].productId){
-				processed.push(Object.assign(eventProducts[product], eventData[data]));
+				//if the two are referring to the same event, they are merged and pushed onto the processed array
+				processed.push(Object.assign({}, eventProducts[product], eventData[data]));
 				break;
 			}
 		}
@@ -14,12 +19,13 @@ Powerup.network.fetch(2).then(resolve=>{
 
 	for(var listing = 0; listing < processed.length; listing++){
 		var tmpListing = processed[listing];
-		tmpListing.listing_key = listing;
+		tmpListing.listing_key = listing; //listing key = current index
 		tmpListing.price = `$${tmpListing.defaultRates[0].price.amount}`;
 
+		//not all bookable events have a courseSchedule with them, so this is required
 		if(tmpListing.courseSchedule !== undefined){
 			let strDate = new Date(tmpListing.courseSchedule.events[0].startTime);
-			let endDate = new Date(tmpListing.courseSchedule.events[tmpListing.courseSchedule0.events.length - 1].startTime);
+			let endDate = new Date(tmpListing.courseSchedule.events[tmpListing.courseSchedule.events.length - 1].startTime);
 			tmpListing.startDate = strDate.toDateString();
 			tmpListing.endDate = endDate.toDateString();
 		}else{
@@ -28,11 +34,14 @@ Powerup.network.fetch(2).then(resolve=>{
 			tmpListing.startDate = strDate.toDateString();
 			tmpListing.endDate = endDate.toDateString();
 		}
+	}
 
-		Powerup.data.processed.push(tmpListing);
+	//when processing is done, the listings are pushed onto the Powerup object
+	for(var listing = 0; listing < processed.length; listing++){
+		Powerup.data.processed.push(processed[listing]);
 	}
 }).catch(reject=>{
-	throw Error(reject);
+	throw new Error(reject);
 })
 
 var app = new Vue({

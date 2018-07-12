@@ -3,6 +3,15 @@ import { URL } from './URL.js'
 import { utils } from './utils.js'
 
 var network = {
+
+	/**
+	 * fetches all user created events and currently available events within
+	 * the periods specified. A period is defined as 31 days. Periods are
+	 * measured from the current date. Data is automatically stored in
+	 * Powerup.data.unprocessed
+	 * @param  {Number} periods - Num of periods to fetch data
+	 * @return {Promise}         
+	 */
 	fetch: function(periods){
 		return new Promise((resolve, reject)=>{
 			let dataToRetrieve = [];
@@ -77,7 +86,10 @@ var network = {
 				xmlrequest.open(method, url);
 			xmlrequest.responseType = "json";
 			xmlrequest.onload = function(){
-				resolve(xmlrequest.response);
+				if(xmlrequest.status >= 200 && xmlrequest.status < 400)
+					resolve(xmlrequest.response);
+				else
+					reject(xmlrequest.response);
 			}
 			xmlrequest.onerror = function(){
 				reject("Error has occurred");
