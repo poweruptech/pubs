@@ -28,16 +28,11 @@ Powerup.network.fetch(2).then(resolve=>{
 			let endDate = new Date(tmpListing.courseSchedule.events[tmpListing.courseSchedule.events.length - 1].startTime);
 			tmpListing.startDate = Powerup.utils.formatDate(strDate, 'md');
 			tmpListing.endDate = Powerup.utils.formatDate(endDate, 'md');
-			//tmpListing.startDate = strDate.toDateString();
-			//tmpListing.endDate = endDate.toDateString();
 		}else{
 			let strDate = new Date(tmpListing.startTime);
 			let endDate = new Date(tmpListing.endTime);
 			tmpListing.startDate = Powerup.utils.formatDate(strDate, 'md');
 			tmpListing.endDate = Powerup.utils.formatDate(endDate, 'md');
-
-			//tmpListing.startDate = strDate.toDateString();
-			//tmpListing.endDate = endDate.toDateString();
 		}
 	}
 
@@ -56,10 +51,25 @@ var app = new Vue({
 		visible: function(){
 			return true;
 		}
+	},
+	methods: {
+		addChildParticipant: function(){
+			this.childParticipants.push(new Powerup.factory.childParticipant());
+		},
+
+		deleteChildParticipant: function(index){
+			Vue.delete(this.childParticipants, index);
+		}
 	}
 });
 
 Vue.component('product-listing', {
+	methods:{
+		getEventId: function(){
+			return this.listing.eventId;
+		}
+	}
+
 	props: {
 		listing: Object,
 		visible: Boolean
@@ -71,9 +81,20 @@ Vue.component('product-listing', {
 				<td v-if='visible'>{{listing.price}}</td>
 				<td v-if='!visible' colspan = 3
 				v-html='listing.description' id='description'></td>
+				<td><button>Book<button></td>
 			</tr>`
 });
 
+/*
 Vue.component('child-participant', {
-	template:
-})
+	template: `<form><fieldset><legend>Child</legend><table><tbody><tr><td>First Name: 
+	<input type="text" name="" required/>Last Name: <input type="text" name="" required/>
+	</td></tr><tr><td>Gender: <select><option value="male">Male</option><option value="female">
+	Female</option><option value="unspecified">--</option></select></td></tr><tr><td>Date of Birth: 
+	<input type="date" name="" required></td></tr><tr><td>Current Grade:<select required>
+	<option value="unspecified">--Please Select an Option--</option><option value="first">1st
+	</option><option value="second">2nd</option><option value="third">3rd</option><option value="fourth">
+	4th</option><option value="fifth">5th</option><option value="sixth">6th</option>
+	<option value="seventh">7th</option><option value="eighth">8th</option><option value="kinder">K</option>
+	</select></td></tr><tr><td>School: <input type="text" name="" required></td></tr></tbody></table></fieldset></form>`
+})*/

@@ -5,6 +5,9 @@
 }(this, (function (exports) { 'use strict';
 
 	var data = {
+		booking: {},
+		customer: {},
+		childParticipants: [],
 		processed: [],
 			unprocessed: {
 				eventProducts: [],
@@ -237,9 +240,14 @@
 		}
 	};
 
+	function ChildParticipant(){
+		
+	}
+
 	var factory = {
 		booking: Booking,
-		customer: Customer
+		customer: Customer,
+		childParticipant: ChildParticipant
 	};
 
 	exports.factory = factory;
