@@ -1,4 +1,4 @@
-import { data as p_date } from './data.js'
+import { data as p_data } from './data.js'
 import { URL } from './URL.js'
 import { utils } from './utils.js'
 

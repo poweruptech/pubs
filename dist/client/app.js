@@ -26,13 +26,18 @@ Powerup.network.fetch(2).then(resolve=>{
 		if(tmpListing.courseSchedule !== undefined){
 			let strDate = new Date(tmpListing.courseSchedule.events[0].startTime);
 			let endDate = new Date(tmpListing.courseSchedule.events[tmpListing.courseSchedule.events.length - 1].startTime);
-			tmpListing.startDate = strDate.toDateString();
-			tmpListing.endDate = endDate.toDateString();
+			tmpListing.startDate = Powerup.utils.formatDate(strDate, 'md');
+			tmpListing.endDate = Powerup.utils.formatDate(endDate, 'md');
+			//tmpListing.startDate = strDate.toDateString();
+			//tmpListing.endDate = endDate.toDateString();
 		}else{
 			let strDate = new Date(tmpListing.startTime);
 			let endDate = new Date(tmpListing.endTime);
-			tmpListing.startDate = strDate.toDateString();
-			tmpListing.endDate = endDate.toDateString();
+			tmpListing.startDate = Powerup.utils.formatDate(strDate, 'md');
+			tmpListing.endDate = Powerup.utils.formatDate(endDate, 'md');
+
+			//tmpListing.startDate = strDate.toDateString();
+			//tmpListing.endDate = endDate.toDateString();
 		}
 	}
 
@@ -55,20 +60,20 @@ var app = new Vue({
 });
 
 Vue.component('product-listing', {
-
-	data: function(){
-			return {
-					visible: true
-				}
-		},
-
-	props: ['product'],
+	props: {
+		listing: Object,
+		visible: Boolean
+	},
 
 	template: `<tr @click='visible = !visible'>
-				<td v-if='visible'>{{ product.name }}</td>
-				<td v-if='visible'>{{ product.startTime }}</td>
-				<td v-if='visible'>{{ product.price }}</td>
-				<td v-if='!visible'
-				v-html='product.description'></td>
+				<td v-if='visible'>{{listing.name}}</td>
+				<td v-if='visible'>{{listing.startDate}} - {{listing.endDate}}</td>
+				<td v-if='visible'>{{listing.price}}</td>
+				<td v-if='!visible' colspan = 3
+				v-html='listing.description' id='description'></td>
 			</tr>`
 });
+
+Vue.component('child-participant', {
+	template:
+})

@@ -14,6 +14,41 @@ var utils = {
 	},
 
 	/**
+	 * Formats a date into the desired string format 
+	 * @param  {Date} date - Date object to format
+	 * @param  {String} format 
+	 * @return {String}
+	 */
+	formatDate: function(date, format){
+		let day = date.getDate()
+		let month = date.getMonth();
+		let year = date.getFullYear();
+		let monthStr = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+		format = format.toLowerCase();
+		month = monthStr[month];
+
+		let dateStr = '';
+		for(var i = 0; i < format.length; i++){
+			switch(format[i]){
+				case 'd':
+					dateStr += day;
+					break;
+				case 'm':
+					dateStr += month;
+					break;
+				case 'y':
+					dateStr += year;
+					break;
+				default:
+					throw new Error(`${format[i]} is not one of the required format letters ('d', 'm' , 'y')`);
+			}
+			dateStr += ' ';
+		}
+
+		return dateStr.substring(0, dateStr.length - 1);
+	},
+
+	/**
 	 * Converts the provided JSON object into a query string
 	 * @function formatParameters
 	 * @param  {Object} obj -  JSON object intended to be formatted into a JSON query string (key:val pairs)
