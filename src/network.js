@@ -5,6 +5,16 @@ import { utils } from './utils.js'
 var network = {
 
 	/**
+	 * Used for authenticating user login
+	 * @param  {String} uname - Username
+	 * @param  {String} pword - Password
+	 * @return {Promise}          
+	 */
+	auth: function(uname, pword){
+		return this.request("POST", URL.auth_cust, undefined, {username: uname, password: pword})
+	},
+
+	/**
 	 * fetches all user created events and currently available events within
 	 * the periods specified. A period is defined as 31 days. Periods are
 	 * measured from the current date. Data is automatically stored in

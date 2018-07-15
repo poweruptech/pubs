@@ -2,6 +2,7 @@
  * Fetches 2 periods of data (62 days) from the bookeo API and processes it. Once processed
  * it can be found in Powerup.data.processed[].
  */
+
 Powerup.network.fetch(2).then(resolve=>{
 	let eventProducts = Powerup.data.unprocessed.eventProducts; //all events created by owner
 	let eventData = Powerup.data.unprocessed.eventData; //actual events to be booked
@@ -40,25 +41,55 @@ Powerup.network.fetch(2).then(resolve=>{
 	for(var listing = 0; listing < processed.length; listing++){
 		Powerup.data.processed.push(processed[listing]);
 	}
+
+	app.eventsLoaded = true;
 }).catch(reject=>{
+	//TODO: Show error screen when error happens
 	throw new Error(reject);
 })
 
 var app = new Vue({
 	el: '#app',
 	data: {
+		childParticipants: [],
+		customer: new Powerup.factory.customer(),
+		eventsLoaded: false,
 		processed_listings: Powerup.data.processed,
-		visible: function(){
-			return true;
-		}
+		signInVisible: false,
+		visible: true
 	},
 	methods: {
 		addChildParticipant: function(){
-			this.childParticipants.push(new Powerup.factory.childParticipant());
+			if(this.childParticipants.length < 3){
+				let index = this.childParticipants.push(new Powerup.factory.childParticipant());
+				this.childParticipants[index - 1].key = index;
+			}else{
+				//TODO: Alert user that no more participants are allowed
+			}
+		},
+
+		authenticateUser: function(){
+			/*
+			Powerup.network.auth(this.customer.username, this.customer.password).then(success=>{
+				Vue.set(customer, 'data', success.data);
+			}).catch(failure=>{
+				//Display error message: Incorrect username or password
+			})
+
+
+			 */
 		},
 
 		deleteChildParticipant: function(index){
 			Vue.delete(this.childParticipants, index);
+
+			for(var i = 0; i < this.childParticipants.length; i++){
+				Vue.set(this.childParticipants[i], 'key', i + 1);
+			}
+		},
+
+		toggleSignIn: function(){
+			this.signInVisible = this.signInVisible ? false: true;
 		}
 	}
 });
@@ -68,7 +99,7 @@ Vue.component('product-listing', {
 		getEventId: function(){
 			return this.listing.eventId;
 		}
-	}
+	},
 
 	props: {
 		listing: Object,
@@ -84,17 +115,3 @@ Vue.component('product-listing', {
 				<td><button>Book<button></td>
 			</tr>`
 });
-
-/*
-Vue.component('child-participant', {
-	template: `<form><fieldset><legend>Child</legend><table><tbody><tr><td>First Name: 
-	<input type="text" name="" required/>Last Name: <input type="text" name="" required/>
-	</td></tr><tr><td>Gender: <select><option value="male">Male</option><option value="female">
-	Female</option><option value="unspecified">--</option></select></td></tr><tr><td>Date of Birth: 
-	<input type="date" name="" required></td></tr><tr><td>Current Grade:<select required>
-	<option value="unspecified">--Please Select an Option--</option><option value="first">1st
-	</option><option value="second">2nd</option><option value="third">3rd</option><option value="fourth">
-	4th</option><option value="fifth">5th</option><option value="sixth">6th</option>
-	<option value="seventh">7th</option><option value="eighth">8th</option><option value="kinder">K</option>
-	</select></td></tr><tr><td>School: <input type="text" name="" required></td></tr></tbody></table></fieldset></form>`
-})*/

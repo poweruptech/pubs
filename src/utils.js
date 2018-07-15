@@ -1,17 +1,6 @@
-import { network } from './network.js';
 import { URL } from './URL.js';
 
 var utils = {
-
-	/**
-	 * Used for authenticating user login
-	 * @param  {String} uname - Username
-	 * @param  {String} pword - Password
-	 * @return {Promise}          
-	 */
-	auth: function(uname, pword){
-		return network.request("POST", URL.auth_cust, undefined, {username: uname, password: pword})
-	},
 
 	/**
 	 * Formats a date into the desired string format 

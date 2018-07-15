@@ -28,16 +28,6 @@
 	var utils = {
 
 		/**
-		 * Used for authenticating user login
-		 * @param  {String} uname - Username
-		 * @param  {String} pword - Password
-		 * @return {Promise}          
-		 */
-		auth: function(uname, pword){
-			return network.request("POST", URL.auth_cust, undefined, {username: uname, password: pword})
-		},
-
-		/**
 		 * Formats a date into the desired string format 
 		 * @param  {Date} date - Date object to format
 		 * @param  {String} format 
@@ -104,6 +94,16 @@
 	};
 
 	var network = {
+
+		/**
+		 * Used for authenticating user login
+		 * @param  {String} uname - Username
+		 * @param  {String} pword - Password
+		 * @return {Promise}          
+		 */
+		auth: function(uname, pword){
+			return this.request("POST", URL.auth_cust, undefined, {username: uname, password: pword})
+		},
 
 		/**
 		 * fetches all user created events and currently available events within
@@ -226,22 +226,25 @@
 	};
 
 	function Customer(data){
-		this.data = {};
+		this.data = {
+			firstName: '',
+			lastName: '',
+			emailAddress: '',
+			phoneNumbers: [{
+				number: '',
+				type: ''
+			}]
+		};
 		if(data !== undefined)
 			this.data = Object.assign(this.data, data);
 	}
 
 	Customer.prototype = {
-		setName: function(fullName){
-			this.data.firstName = fullName.firstName;
-			this.data.middleName = fullName.middleName;
-			this.data.lastName = fullName.lastName;
-			return this;
-		}
 	};
 
 	function ChildParticipant(){
-		
+		this.key = 0;
+		this.data = {};
 	}
 
 	var factory = {

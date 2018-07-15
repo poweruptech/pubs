@@ -1,16 +1,18 @@
 function Customer(data){
-	this.data = {};
+	this.data = {
+		firstName: '',
+		lastName: '',
+		emailAddress: '',
+		phoneNumbers: [{
+			number: '',
+			type: ''
+		}]
+	};
 	if(data !== undefined)
 		this.data = Object.assign(this.data, data);
 }
 
 Customer.prototype = {
-	setName: function(fullName){
-		this.data.firstName = fullName.firstName;
-		this.data.middleName = fullName.middleName;
-		this.data.lastName = fullName.lastName;
-		return this;
-	}
 }
 
 export { Customer }
