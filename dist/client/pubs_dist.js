@@ -114,6 +114,9 @@
 		 * @return {Promise}         
 		 */
 		fetch: function(periods){
+			if(periods == 0){
+				return;
+			}
 			return new Promise((resolve, reject)=>{
 				let dataToRetrieve = [];
 
@@ -193,7 +196,7 @@
 						reject(xmlrequest.response);
 				};
 				xmlrequest.onerror = function(){
-					reject("Error has occurred");
+					reject("Unable to retrieve data");
 				};
 				if(data$$1 !== undefined)
 					xmlrequest.send(data$$1);

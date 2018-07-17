@@ -1,16 +1,19 @@
 table{
-	border-collapse: collapse;
+	border-spacing: 10px;
+	display:block;
 	width:100%;
 }
 td, th{
-	width: 33%;
+	width: auto;
+	text-align: left;
 }
 tr{
 	width: 100%;
+	height: 25px;
 	/*background: linear-gradient(to bottom, #ffffff 0%, #dddddd 65%, #c6c6c6 100%);*/
 }
-#listing{
-	
+.d{
+	max-width:250px;
 }
 .modal{
 	position:fixed;
@@ -26,20 +29,33 @@ tr{
 	background-color: #dddddd;
 }
 .modal-content{
+	z-index:0;
+	border-radius:10px;
 	margin:25%;
-	padding:20px;
-	border:1px solid #888;
+	padding:10px;
 	background-color:#fefefe;
-	width: 40%;
+	width: auto;
 }
 #description{
 	width: 100%;
 }
-
-.visible-block{
-	display:block;
+.error{
+	color:red;
 }
 
 .invisible{
 	display: none;
+}
+
+.visible-block{
+/*	animation-name:fade;
+	animation-duration: 0.25s;*/
+	display:block;
+}
+
+.fade-enter-active, .fade-leave-active{
+	transition: opacity 0.25s;
+}
+.fade-enter, .fade-leave-to{
+	opacity: 0;
 }

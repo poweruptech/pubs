@@ -20,5 +20,6 @@
   "bugs": {
     "url": "https://github.com/poweruptech/pubs/issues"
   },
-  "homepage": "https://github.com/poweruptech/pubs#readme"
+  "homepage": "https://github.com/poweruptech/pubs#readme",
+  "dependencies": {}
 }

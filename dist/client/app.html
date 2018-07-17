@@ -4,119 +4,155 @@
 <head>
 	<link rel="stylesheet" type="text/css" href="style/style.css">
 	<meta charset="utf-8">
-	<title></title>
-	<script type="text/javascript" src="vue.js"></script>
+	<title>PUBS</title>
+	<script src="vue.js"></script>
 </head>
 
 <body>
 	<div id="app">
 
+		<div class='window'></div>
+		<div class='window'></div>
+		<div class='window'></div>
+		<div class='window'></div>
+
 		<div v-if="eventsLoaded == false" class="modal loading-screen">
 			<div class="modal-content">
-				<img src="loading_spinner.gif">
+				<h1>{{loadingmessage}}</h1>
+			</div>
+		</div>
+
+		<div class="modal invisible">
+			<div class="modal-content">
+				<p></p>
 			</div>
 		</div>
 
 		<table>
-			<tr>
-				<th>Class</th>
-				<th>Date</th>
-				<th>Total</th>
-			</tr>
-
-			<tr is="product-listing" v-for='listing in processed_listings' :listing='listing' :key='listing.listing_key' :visible='true'>
+			<thead>
+				<tr>
+					<th>Class</th>
+					<th>Date</th>
+					<th>Total</th>
+				</tr>
+			</thead>
+			<tr is="product-listing" v-for='listing in processed_listings' :listing='listing' :key='listing.listing_key' @set-booking="setCurrentListing">
 		</table>
-	
-	<button @click="toggleSignIn">Sign in</button>
-	<div class="modal invisible"
-		@click="toggleSignIn">
-		<div class="modal-content">
-			<form>
+
+
+		<button type="button" @click="toggleActive('signInActive')">Sign in</button>
+
+		<transition name="fade">
+			<div class="modal visible-block" v-if="status.signInActive" @click="toggleActive('signInActive')">
+				<div class="modal-content">
+					<form>
+						<table>
+							<tr>
+								<td><label>Username </label></td>
+								<td><input type="text" /></td>
+							</tr>
+							<tr>
+								<td><label>Password</label></td>
+								<td><input type="password" /></td>
+							</tr>
+							<tr>
+								<td>
+									<input type="submit" @click.prevent="authUser" />
+								</td>
+								<td class='error'>{{ eventMessage }}</td>
+							</tr>
+						</table>
+					</form>
+				</div>
+			</div>
+		</transition>
+
+		<form v-if="status.classDetailsActive">
+			<fieldset>
+				<legend>Class Details</legend>
+				<table>
+					<tr v-for="textOption in currentListing.textOptions">
+						<td v-if="textOption.required" required></td>
+						<td v-else></td>
+
+					</tr>
+					<tr v-for="choiceOption in currentListing.choiceOptions">
+
+					</tr>
+				</table>
+			</fieldset>
+		</form>
+
+		<form>
+			<fieldset>
+				<legend>Your Details</legend>
 				<table>
 					<tr>
-						<td>Username: <input type="text" name="" /></td>
-					</tr>
-					<tr>
-						<td>Password: <input type="password" name="" /></td>
+						<td>
+							<label>First name: </label><input type="text" v-model="customer.data.firstName" required/>
+						</td>
+						<td><label>Last name: </label><input type="text" v-model="customer.data.lastName" required/></td>
 					</tr>
 					<tr>
 						<td>
-							<input type="submit" value="Submit"/>
+							<label>Email: </label><input type="email" v-model="customer.data.emailAddress" required>
+						</td>
+						<td>
+							<input type="checkbox" id="checkbox" checked>
+							<label for="checkbox">Subscribe to our newsletter</label>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<label>Phone: </label><input type="tel" v-model="customer.data.phoneNumbers[0].number">
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<div class="d">
+								<p>* Pickup authorizations: Please list the name and cell phone numbers of all adults who may pick your child up</p>
+							</div>
+						</td>
+						<td>
+							<textarea rows="6" cols="28" required></textarea>
 						</td>
 					</tr>
 				</table>
-			</form>
-		</div>
-	</div>
-	<form>
-		<fieldset>
-			<legend>Your Details</legend>
-			<table>
-				<tr>
-					<td colspan=2>
-						<label>First name: </label><input type="text" v-model="customer.data.firstName" required/>
-						<label>Last name: </label><input type="text" v-model="customer.data.lastName" required/>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<label>Email: </label><input type="email" v-model="customer.data.emailAddress" required>
-					</td>
-					<td>
-						<input type="checkbox" id="checkbox" checked>
-						<label for="checkbox">Subscribe to our newsletter</label>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<label>Phone: </label><input type="tel" v-model="customer.data.phoneNumbers[0].number">
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<p>* Pickup authorizations: Please list the name and cell phone numbers of all adults who may pick your child up</p>
-					</td>
-					<td>
-						<textarea required></textarea>
-					</td>
-				</tr>
-			</table>
-		</fieldset>
-	</form>
+			</fieldset>
+		</form>
 
-	<h1>Participants</h1>
-	<button @click="addChildParticipant">Add Child</button>
+		<h1>Participants</h1>
+		<button type="button" @click="addChildParticipant">Add Child</button>
 
-	<form v-for="child in childParticipants"
-	:key="child.key">
-		<fieldset>
-			<legend>Child {{child.key}} </legend>
-			<button @click.prevent="deleteChildParticipant(child.key - 1)">Remove Child</button>
-			<table>
-				<tbody>
-					<tr>
-						<td>
-							<label>First Name: </label><input type="text" v-model="child.data.firstName" required/> 
-							<label>Last Name: </label><input type="text" v-model="child.data.lastName" required/>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							Gender:
-							<select>
-								<option value="male">Male</option>
-								<option value="female">Female</option>
-								<option value="unspecified">--</option>
+		<form v-for="child in childParticipants" :key="child.key">
+			<fieldset>
+				<legend>Child {{child.key}} </legend>
+				<button type="button" @click.prevent="deleteChildParticipant(child.key - 1)">Remove Child</button>
+				<table>
+					<tbody>
+						<tr>
+							<td>
+								<label>First Name: </label><input type="text" v-model="child.data.firstName" required/>
+								<label>Last Name: </label><input type="text" v-model="child.data.lastName" required/>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								Gender:
+								<select>
+								<option>Male</option>
+								<option>Female</option>
+								<option disabled>--</option>
 							</select>
-						</td>
-					</tr>
-					<tr>
-						<td><label>Date of Birth:</label><input type="date" name="" required></td>
-					</tr>
-					<tr>
-						<td>
-							Current Grade:
-							<select required>
+							</td>
+						</tr>
+						<tr>
+							<td><label>Date of Birth:</label><input type="date" required></td>
+						</tr>
+						<tr>
+							<td>
+								Current Grade:
+								<select required>
 								<option disabled>--Please Select an Option--</option>
 								<option>1</option>
 								<option>2</option>
@@ -128,34 +164,34 @@
 								<option>8</option>
 								<option>K</option>
 							</select>
-						</td>
-					</tr>
-					<tr>
-						<td>School: <input type="text" required></td>
-					</tr>
-				</tbody>
-			</table>
-		</fieldset>
-	</form>
+							</td>
+						</tr>
+						<tr>
+							<td>School: <input type="text" required></td>
+						</tr>
+					</tbody>
+				</table>
+			</fieldset>
+		</form>
 
-	<form>
-		<fieldset>
-			<legend>Password</legend>
-			<table>
-				<tbody>
-					<tr>
-						<td>Password: <input type="password" required></td>
-					</tr>
-					<tr>
-						<td>Confirm Password: <input type="password" required></td>
-					</tr>
-				</tbody>
-			</table>
-		</fieldset>
-	</form>
-</div>
-	<script type="text/javascript" src="pubs_dist.js"></script>
-	<script type="text/javascript" src="app.js" defer></script>
+		<form>
+			<fieldset>
+				<legend>Password</legend>
+				<table>
+					<tbody>
+						<tr>
+							<td>Password: <input type="password" required></td>
+						</tr>
+						<tr>
+							<td>Confirm Password: <input type="password" required></td>
+						</tr>
+					</tbody>
+				</table>
+			</fieldset>
+		</form>
+	</div>
+	<script src="pubs_dist.js"></script>
+	<script src="app.js" defer></script>
 </body>
 
 </html>
