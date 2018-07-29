@@ -1,6 +1,6 @@
-import { data as p_data } from './data.js'
-import { URL } from './URL.js'
-import { utils } from './utils.js'
+import { data as p_data } from './data.js';
+import { URL } from './URL.js';
+import { utils } from './utils.js';
 
 var network = {
 
@@ -11,9 +11,9 @@ var network = {
 	 * @return {Promise}          
 	 */
 	auth: function(uname, pword){
-		return this.request("POST", URL.auth_cust, undefined, {username: uname, password: pword})
+		return this.request("POST", URL.auth_cust, undefined, {username: uname, password: pword});
 	},
-
+	
 	/**
 	 * fetches all user created events and currently available events within
 	 * the periods specified. A period is defined as 31 days. Periods are
@@ -41,7 +41,7 @@ var network = {
 				let eventList = completed.pop();
 
 				for(var evnt = 0; evnt < eventList.data.length; evnt++){
-					p_data.unprocessed.eventProducts.push(eventList.data[evnt])
+					p_data.unprocessed.eventProducts.push(eventList.data[evnt]);
 				}
 
 				for(var dataBlock = 0; dataBlock < completed.length; dataBlock++){
@@ -54,10 +54,9 @@ var network = {
 				resolve("Data retrieval successful!");
 			}).catch(err=>{
 				reject(err);
-			})
-		})
+			});
+		});
 	},
-
 
 	/**
 	 * Calling this function returns availibility for classes. The Bookeo API
@@ -78,6 +77,10 @@ var network = {
 	 */
  	getAllEvents: function(){
 		return this.request("GET", URL.get_classes);
+	},
+	
+	newCustomer: function(customer){
+		return this.request("POST", URL.create_customer, undefined, customer.data);
 	},
 
 	/**
@@ -103,16 +106,16 @@ var network = {
 					resolve(xmlrequest.response);
 				else
 					reject(xmlrequest.response);
-			}
+			};
 			xmlrequest.onerror = function(){
 				reject("Unable to retrieve data");
-			}
+			};
 			if(data !== undefined)
 				xmlrequest.send(data);
 			else
 				xmlrequest.send();
 		});
 	}
-}
+};
 
-export { network }
+export { network };

@@ -7,6 +7,6 @@ var data = {
 			eventProducts: [],
 			eventData: []
 	}
-}
+};
 
-export { data }
+export { data };

@@ -6,6 +6,6 @@ var factory = {
 	booking: Booking,
 	customer: Customer,
 	childParticipant: ChildParticipant
-}
+};
 
-export { factory }
+export { factory };

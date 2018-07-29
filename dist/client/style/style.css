@@ -1,19 +1,54 @@
 table{
-	border-spacing: 10px;
-	display:block;
+	table-layout:fixed;
+	border-spacing: 15px;
+	width:auto;
+}
+
+.pdescription{
+	border: 2px solid black;
+	border-radius: 5px;
+}
+td{
+	width:auto;
+}
+
+p{
 	width:100%;
 }
-td, th{
-	width: auto;
-	text-align: left;
+
+.textinput{
+	float:right;
+	width:75%;
+	margin:auto;
+	resize: none;
 }
-tr{
+
+input{
 	width: 100%;
-	height: 25px;
-	/*background: linear-gradient(to bottom, #ffffff 0%, #dddddd 65%, #c6c6c6 100%);*/
 }
-.d{
-	max-width:250px;
+
+.exit{
+	float:right;
+	background-color:red;
+	font-size:20px;
+	font-weight:bold;
+	color:black;
+}
+
+.modal-header {
+	border-radius:10px 10px 0px 0px;
+	padding:1px 10px;
+    background-color: #2a6fdd;
+    color: white;
+}
+
+.modal-input{
+	width: 100%;
+}
+
+.exit:hover,
+.exit:focus{
+	cursor:pointer;
 }
 .modal{
 	position:fixed;
@@ -23,7 +58,6 @@ tr{
 	background-color:rgba(0,0,0,0.5);
 	width:100%;
 	height: 100%;
-	overflow: none;
 }
 .loading-screen{
 	background-color: #dddddd;
@@ -32,14 +66,17 @@ tr{
 	z-index:0;
 	border-radius:10px;
 	margin:25%;
-	padding:10px;
+	margin-top:25vh;
+	padding:px;
 	background-color:#fefefe;
-	width: auto;
+	float:left;
 }
-#description{
-	width: 100%;
+
+.eventSuccess{
+	color:green;
 }
-.error{
+
+.eventFail{
 	color:red;
 }
 
@@ -48,13 +85,11 @@ tr{
 }
 
 .visible-block{
-/*	animation-name:fade;
-	animation-duration: 0.25s;*/
 	display:block;
 }
 
 .fade-enter-active, .fade-leave-active{
-	transition: opacity 0.25s;
+	transition: opacity 0.1s;
 }
 .fade-enter, .fade-leave-to{
 	opacity: 0;

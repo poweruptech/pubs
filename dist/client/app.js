@@ -3,7 +3,9 @@
  * it can be found in Powerup.data.processed[].
  */
 
-Powerup.network.fetch(0).then(resolve=>{
+/*
+Powerup.network.fetch(1).then(resolve=>{
+	app.messages.eventMessage = "Loading...";
 	let eventProducts = Powerup.data.unprocessed.eventProducts; //all events created by owner
 	let eventData = Powerup.data.unprocessed.eventData; //actual events to be booked
 	let processed = []; //processed listings
@@ -20,7 +22,11 @@ Powerup.network.fetch(0).then(resolve=>{
 
 	for(var listing = 0; listing < processed.length; listing++){
 		var tmpListing = processed[listing];
-		tmpListing.listing_key = listing; //listing key = current index
+		
+		if(tmpListing.apiBookingsAllowed == false){
+			continue;
+		}
+		
 		tmpListing.price = `$${tmpListing.defaultRates[0].price.amount}`;
 
 		//not all bookable events have a courseSchedule with them, so this is required
@@ -36,30 +42,55 @@ Powerup.network.fetch(0).then(resolve=>{
 			tmpListing.endDate = Powerup.utils.formatDate(endDate, 'md');
 		}
 		
+		
+		//Might be able to defer this processing until it's actually needed
+		
+		//Available options for a listing (Text <input> or choice <radio>)
+		tmpListing.options = {
+			text: [],
+			choice: []
+		};
+		
+		//If listings have text or choice options and are supposed to be shown,
+		//they're pushed onto their respective array in the listing's options
+		//object
+		
 		if(tmpListing.textOptions){
-			for(var option = 0; option < textOptions.length; option++){
-				
+			for(var option = 0; option < tmpListing.textOptions.length; option++){
+				if(tmpListing.textOptions[option].enabled && tmpListing.textOptions[option].shownToCustomers){
+					tmpListing.options.text.push(tmpListing.textOptions[option]);
+				}		
 			}
+			delete tmpListing.textOptions;
 		}
+		
 		if(tmpListing.choiceOptions){
-			for(var option = 0; option < choiceOption.length; option++){
-				
+			for(var option = 0; option < tmpListing.choiceOptions.length; option++){
+				if(tmpListing.choiceOptions[option].enabled && tmpListing.choiceOptions[option].shownToCustomers){
+					tmpListing.options.choice.push(tmpListing.choiceOptions[option]);
+				}
 			}
+			delete tmpListing.choiceOptions;
 		}
 	}
 
 	//when processing is done, the listings are pushed onto the Powerup object
 	for(var listing = 0; listing < processed.length; listing++){
-		Powerup.data.processed.push(processed[listing]);
+		if(processed[listing].apiBookingsAllowed == true){
+			processed[listing].key = listing;
+			Powerup.data.processed.push(processed[listing]);
+		}
 	}
+	
+	app.messages.eventMessage = '';
 
 	app.eventsLoaded = true;
 }).catch(reject=>{
 	//TODO: Show error screen when error happens
-	app.loadingmessage = reject;
-	console.error(reject);
-})
-
+	app.messages.eventMessage = `${ reject }. Trying again...`;
+	console.error(`Network error: ${ reject }`);
+});
+*/
 
 var app = new Vue({
 	el: '#app',
@@ -68,23 +99,20 @@ var app = new Vue({
 		childParticipants: [],
 		currentListing: {},
 		customer: new Powerup.factory.customer(),
-		eventsLoaded: false,
-		eventMessage: '',
 		loadingmessage: 'Loading...',
 		processed_listings: Powerup.data.processed,
 		
 		messages: {
-			
+			eventMessage: ''
 		},
 		
 		status:{
 			classDetailsActive: false,
-			signInActive: false,
-			logInActive: false
-		},
-		
-		signInVisible: false,
-		visible: true
+			eventsLoaded: false,
+			eventSuccess: false,
+			eventFailure: false,
+			signInActive: false
+		}
 	},
 	methods: {
 		addChildParticipant: function(){
@@ -97,17 +125,23 @@ var app = new Vue({
 		},
 
 		authUser: function(){
-			/*
+			this.status.eventFailure = false;
+			this.status.eventSuccess = false;
 			
-			this.messages.eventMessage = "Logging in..."
+			this.messages.eventMessage = "Logging in...";
 			
-			Powerup.network.auth(this.customer.username, this.customer.password).then(success=>{
+			Powerup.network.auth(this.customer.auth.username, this.customer.auth.password).then(success=>{
 				Vue.set(customer, 'data', success.data);
-				this.messages.eventMessage = "Login successful!"
+				this.messages.eventMessage = "Login successful!";
+				
+				setTimeout(()=>{
+					app.toggleActive('signInActive');
+				}, 1000);
+				
 			}).catch(failure=>{
-				this.messages.eventMessage = "Incorrect username or password"
-			})
-			 */
+				this.status.eventFailure = true;
+				this.messages.eventMessage = 'Incorrect username or password';
+			});
 		},
 
 		deleteChildParticipant: function(index){
@@ -135,6 +169,7 @@ var app = new Vue({
 		toggleActive: function(activeEl){
 		//	this.status.signInActive = !this.status.signInActive;
 		this.status[activeEl] = !this.status[activeEl];
+		this.messages.eventMessage = '';
 		}
 	}
 });
@@ -143,7 +178,7 @@ Vue.component('product-listing', {
 	data: function(){
 		return {
 			visible: true
-		}
+		};
 	},
 	methods:{
 		getEventId: function(){
@@ -159,8 +194,8 @@ Vue.component('product-listing', {
 				<td v-if='visible'>{{listing.name}}</td>
 				<td v-if='visible'>{{listing.startDate}} - {{listing.endDate}}</td>
 				<td v-if='visible'>{{listing.price}}</td>
-				<td v-if='!visible' colspan = 3
-				v-html='listing.description' id='description'>
+				<td v-if='!visible' colspan = 2
+				v-html='listing.description' class='pdescription'>
 				</td>
 				<td v-if='!visible'>
 					<button @click="$emit('set-booking', listing)"> Book </button>
@@ -168,4 +203,4 @@ Vue.component('product-listing', {
 			</tr>`
 });
 
-app.eventsLoaded = true;
+app.status.eventsLoaded = true;

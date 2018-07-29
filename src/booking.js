@@ -1,5 +1,5 @@
-import { network } from './network.js'
-import { URL } from './URL.js'
+import { network } from './network.js';
+import { URL } from './URL.js';
 
 function Booking(data){
 	this.data = {};
@@ -21,6 +21,6 @@ Booking.prototype = {
 		network.request("POST", URL.create_booking, undefined, JSON.stringify(this.data));
 	},
 	setData: function(data){this.data = data;}
-}
+};
 
-export { Booking }
+export { Booking };

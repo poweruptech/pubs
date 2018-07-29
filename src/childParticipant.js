@@ -3,4 +3,4 @@ function ChildParticipant(){
 	this.data = {};
 }
 
-export { ChildParticipant }
+export { ChildParticipant };

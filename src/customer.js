@@ -8,11 +8,17 @@ function Customer(data){
 			type: ''
 		}]
 	};
+	
+	this.auth = {
+		username: '',
+		password: ''
+	};
+	
 	if(data !== undefined)
 		this.data = Object.assign(this.data, data);
 }
 
 Customer.prototype = {
-}
+};
 
-export { Customer }
+export { Customer };

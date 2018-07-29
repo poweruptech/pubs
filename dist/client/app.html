@@ -4,6 +4,7 @@
 <head>
 	<link rel="stylesheet" type="text/css" href="style/style.css">
 	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>PUBS</title>
 	<script src="vue.js"></script>
 </head>
@@ -16,9 +17,9 @@
 		<div class='window'></div>
 		<div class='window'></div>
 
-		<div v-if="eventsLoaded == false" class="modal loading-screen">
+		<div v-if="status.eventsLoaded == false" class="modal loading-screen">
 			<div class="modal-content">
-				<h1>{{loadingmessage}}</h1>
+				<h1>{{messages.eventMessage}}</h1>
 			</div>
 		</div>
 
@@ -43,23 +44,27 @@
 		<button type="button" @click="toggleActive('signInActive')">Sign in</button>
 
 		<transition name="fade">
-			<div class="modal visible-block" v-if="status.signInActive" @click="toggleActive('signInActive')">
+			<div class="modal visible-block" v-if="status.signInActive">
 				<div class="modal-content">
+					<div class="modal-header">
+						<span class="exit" @click="toggleActive('signInActive')">&times</span>
+						<p>Sign in</p>	
+					</div>
 					<form>
 						<table>
 							<tr>
-								<td><label>Username </label></td>
-								<td><input type="text" /></td>
+								<td><label>Username</label></td>
+								<td><input class="modal-input" type="text" v-model="customer.auth.username"/></td>
 							</tr>
 							<tr>
 								<td><label>Password</label></td>
-								<td><input type="password" /></td>
+								<td><input class="modal-input" type="password" v-model="customer.auth.password"/></td>
 							</tr>
 							<tr>
 								<td>
-									<input type="submit" @click.prevent="authUser" />
+									<input type="submit" @click.prevent="authUser"/>
 								</td>
-								<td class='error'>{{ eventMessage }}</td>
+								<td :class="{'eventSuccess': status.eventSuccess, 'eventFail': status.eventFailure}">{{ messages.eventMessage }}</td>
 							</tr>
 						</table>
 					</form>
@@ -89,32 +94,70 @@
 				<table>
 					<tr>
 						<td>
-							<label>First name: </label><input type="text" v-model="customer.data.firstName" required/>
+							<label>First name: </label>
 						</td>
-						<td><label>Last name: </label><input type="text" v-model="customer.data.lastName" required/></td>
+						<td>
+							<input type="text" v-model="customer.data.firstName" required/>
+						</td>
+						<td><label>Last name: </label></td>
+						<td><input type="text" v-model="customer.data.lastName" required/></td>
 					</tr>
 					<tr>
 						<td>
-							<label>Email: </label><input type="email" v-model="customer.data.emailAddress" required>
+							<label>Email: </label>
+						</td>
+						<td>
+							<input type="email" v-model="customer.data.emailAddress" required>
 						</td>
 						<td>
 							<input type="checkbox" id="checkbox" checked>
+						</td>
+						<td>
 							<label for="checkbox">Subscribe to our newsletter</label>
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<label>Phone: </label><input type="tel" v-model="customer.data.phoneNumbers[0].number">
+							<label>Phone: </label>
+						</td>
+						<td>
+							<input type="tel" v-model="customer.data.phoneNumbers[0].number">
 						</td>
 					</tr>
 					<tr>
 						<td>
-							<div class="d">
-								<p>* Pickup authorizations: Please list the name and cell phone numbers of all adults who may pick your child up</p>
-							</div>
+							<p>*Pickup authorizations:</p></p>
 						</td>
+						<td colspan=3>
+							<p>Please list the name and cell phone numbers of all adults who may pick your child up</p>
+						</td>
+					</tr>
+					
+					<tr>
+						<td colspan=4 align="right">
+							<textarea class="textinput" rows="5"></textarea>
+						</td>
+					</tr>
+					<tr>
 						<td>
-							<textarea rows="6" cols="28" required></textarea>
+							<p>*Emergency Contact:</p>
+						</td>
+						<td colspan=4>
+							<p>Please enter two emergency contacts with phone numbers (apart from pick up authorizations)</p>
+						</td>
+					</tr>
+					<tr>
+						<td colspan=4 align="right">
+							<textarea class="textinput" rows="5"> </textarea>
+						</td>
+					</tr>
+					<tr>
+						<td><p>How did you hear about this:</p></td>
+						<td colspan=4><p>How did you hear about this class?</p></td>
+					</tr>
+					<tr>
+						<td colspan=4 align="right">
+							<textarea class="textinput" rows=1></textarea>
 						</td>
 					</tr>
 				</table>
@@ -127,47 +170,65 @@
 		<form v-for="child in childParticipants" :key="child.key">
 			<fieldset>
 				<legend>Child {{child.key}} </legend>
-				<button type="button" @click.prevent="deleteChildParticipant(child.key - 1)">Remove Child</button>
+				<span class="exit" @click="deleteChildParticipant(child.key - 1)">&times</span>
 				<table>
 					<tbody>
 						<tr>
 							<td>
-								<label>First Name: </label><input type="text" v-model="child.data.firstName" required/>
-								<label>Last Name: </label><input type="text" v-model="child.data.lastName" required/>
+								<label>First Name:</label>
+							</td>
+							<td>
+								<input type="text" v-model="child.data.firstName" required/>
+							</td>
+							<td>
+								<label>Last Name:</label>
+							</td>
+							<td>
+								<input type="text" v-model="child.data.lastName" required/>
 							</td>
 						</tr>
 						<tr>
 							<td>
 								Gender:
-								<select>
-								<option>Male</option>
-								<option>Female</option>
-								<option disabled>--</option>
-							</select>
 							</td>
-						</tr>
-						<tr>
-							<td><label>Date of Birth:</label><input type="date" required></td>
+							<td>
+								<select>
+									<option>Male</option>
+									<option>Female</option>
+									<option selected disabled>---</option>
+								</select>
+							</td>
 						</tr>
 						<tr>
 							<td>
-								Current Grade:
-								<select required>
-								<option disabled>--Please Select an Option--</option>
-								<option>1</option>
-								<option>2</option>
-								<option>3</option>
-								<option>4</option>
-								<option>5</option>
-								<option>6</option>
-								<option>7</option>
-								<option>8</option>
-								<option>K</option>
-							</select>
+								<label>Date of Birth:</label>
+							</td>
+							<td>
+								<input type="date" required>
 							</td>
 						</tr>
 						<tr>
-							<td>School: <input type="text" required></td>
+							<td>School:</td>
+							<td>
+								 <input type="text" required>
+							</td>
+							<td>
+								Grade:
+							</td>
+							<td>
+								<select required>
+									<option selected disabled>-- Please Select an Option --</option>
+									<option>1</option>
+									<option>2</option>
+									<option>3</option>
+									<option>4</option>
+									<option>5</option>
+									<option>6</option>
+									<option>7</option>
+									<option>8</option>
+									<option>K</option>
+								</select>
+							</td>
 						</tr>
 					</tbody>
 				</table>
@@ -180,10 +241,12 @@
 				<table>
 					<tbody>
 						<tr>
-							<td>Password: <input type="password" required></td>
+							<td><label>Password:</label></td>
+							<td><input type="password" required></input></td>
 						</tr>
 						<tr>
-							<td>Confirm Password: <input type="password" required></td>
+							<td><label>Confirm Password:</label></td>
+							<td><input type="password" required/></td>
 						</tr>
 					</tbody>
 				</table>

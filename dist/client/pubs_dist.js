@@ -16,8 +16,12 @@
 	};
 
 	var URL = {
+		$base: "https://powerupnode.fwd.wf/",
 		auth_cust: "https://powerupnode.fwd.wf/auth/cust",
 		create_booking: "https://powerupnode.fwd.wf/create/booking",
+		create_customer: "https://powerupnode.fwd.wf/create/customer",
+		create_hold: "https://powerupnode.fwd.wf/create/hold",
+		delete_hold: "https://powerupnode.fwd.wf/delete/hold",
 		get_booking: "https://powerupnode.fwd.wf/get/booking",
 		get_availability: "https://powerupnode.fwd.wf/get/availability",
 		get_classes: "https://powerupnode.fwd.wf/get/classes",
@@ -102,9 +106,9 @@
 		 * @return {Promise}          
 		 */
 		auth: function(uname, pword){
-			return this.request("POST", URL.auth_cust, undefined, {username: uname, password: pword})
+			return this.request("POST", URL.auth_cust, undefined, {username: uname, password: pword});
 		},
-
+		
 		/**
 		 * fetches all user created events and currently available events within
 		 * the periods specified. A period is defined as 31 days. Periods are
@@ -146,9 +150,8 @@
 				}).catch(err=>{
 					reject(err);
 				});
-			})
+			});
 		},
-
 
 		/**
 		 * Calling this function returns availibility for classes. The Bookeo API
@@ -169,6 +172,10 @@
 		 */
 	 	getAllEvents: function(){
 			return this.request("GET", URL.get_classes);
+		},
+		
+		newCustomer: function(customer){
+			return this.request("POST", URL.create_customer, undefined, customer.data);
 		},
 
 		/**
@@ -238,6 +245,12 @@
 				type: ''
 			}]
 		};
+		
+		this.auth = {
+			username: '',
+			password: ''
+		};
+		
 		if(data !== undefined)
 			this.data = Object.assign(this.data, data);
 	}

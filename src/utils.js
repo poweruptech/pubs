@@ -9,7 +9,7 @@ var utils = {
 	 * @return {String}
 	 */
 	formatDate: function(date, format){
-		let day = date.getDate()
+		let day = date.getDate();
 		let month = date.getMonth();
 		let year = date.getFullYear();
 		let monthStr = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -63,9 +63,9 @@ var utils = {
 		let time = {
 			startTime: startDate.toISOString(),
 			endTime: endDate.toISOString(),
-		}
+		};
 		return this.formatParameters(time);
 	}
-}
+};
 
-export { utils }
+export { utils };
