@@ -94,6 +94,11 @@
 				endTime: endDate.toISOString(),
 			};
 			return this.formatParameters(time);
+		},
+		
+		parseDate: function(dateStr){
+			var date = dateStr.split('-');
+			return new Date(date[0], date[1] - 1, date[2]);
 		}
 	};
 
@@ -260,7 +265,18 @@
 
 	function ChildParticipant(){
 		this.key = 0;
-		this.data = {};
+		this.data = {
+			firstName: '',
+			lastName: '',
+			gender: 'unknown',
+			dateOfBirth: '',
+			customFields: []
+			
+		};
+		
+		this.categoryIndex;
+		
+		this.personId = 'PUNKNOWN';
 	}
 
 	var factory = {

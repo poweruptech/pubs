@@ -4,6 +4,10 @@ table{
 	width:auto;
 }
 
+.label{
+	text-align:right;
+}
+
 .pdescription{
 	border: 2px solid black;
 	border-radius: 5px;
@@ -23,7 +27,7 @@ p{
 	resize: none;
 }
 
-input{
+input[type="email"], input[type="text"], input[type="tel"]{
 	width: 100%;
 }
 

@@ -109,7 +109,7 @@
 						<td>
 							<input type="email" v-model="customer.data.emailAddress" required>
 						</td>
-						<td>
+						<td class="label">
 							<input type="checkbox" id="checkbox" checked>
 						</td>
 						<td>
@@ -132,10 +132,18 @@
 							<p>Please list the name and cell phone numbers of all adults who may pick your child up</p>
 						</td>
 					</tr>
-					
 					<tr>
-						<td colspan=4 align="right">
-							<textarea class="textinput" rows="5"></textarea>
+						<td class="label">
+							<label>Name:</label>
+						</td>
+						<td>
+							<input type="text" placeholder="John Smith" required/>
+						</td>
+						<td class="label">
+							<label>Phone:</label>
+						</td>
+						<td>
+							<input type="tel" placeholder="123-456-7890" required/>
 						</td>
 					</tr>
 					<tr>
@@ -147,8 +155,31 @@
 						</td>
 					</tr>
 					<tr>
-						<td colspan=4 align="right">
-							<textarea class="textinput" rows="5"> </textarea>
+						<td class="label">
+							<label>Name:</label>
+						</td>
+						<td>
+							<input type="text" placeholder="John Smith" required/>
+						</td>
+						<td class="label">
+							<label>Phone:</label>
+						</td>
+						<td>
+							<input type="tel" placeholder="123-456-7890" required/>
+						</td>
+					</tr>
+					<tr>
+						<td class="label">
+							<label>Name:</label>
+						</td>
+						<td>
+							<input type="text" placeholder="John Smith" required/>
+						</td>
+						<td class="label">
+							<label>Phone:</label>
+						</td>
+						<td>
+							<input type="tel" placeholder="123-456-7890" required/>
 						</td>
 					</tr>
 					<tr>
@@ -192,7 +223,7 @@
 								Gender:
 							</td>
 							<td>
-								<select>
+								<select v-model="child.data.gender">
 									<option>Male</option>
 									<option>Female</option>
 									<option selected disabled>---</option>
@@ -204,7 +235,7 @@
 								<label>Date of Birth:</label>
 							</td>
 							<td>
-								<input type="date" required>
+								<input v-model="child.data.dateOfBirth" type="date" required>
 							</td>
 						</tr>
 						<tr>

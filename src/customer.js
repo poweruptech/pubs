@@ -15,10 +15,13 @@ function Customer(data){
 	};
 	
 	if(data !== undefined)
-		this.data = Object.assign(this.data, data);
+		Object.assign(this.data, data);
 }
 
 Customer.prototype = {
+	assign: function(data){
+		Object.assign(this.data, data);
+	}
 };
 
 export { Customer };

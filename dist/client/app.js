@@ -145,10 +145,12 @@ var app = new Vue({
 		},
 
 		deleteChildParticipant: function(index){
-			Vue.delete(this.childParticipants, index);
-
-			for(var i = 0; i < this.childParticipants.length; i++){
-				Vue.set(this.childParticipants[i], 'key', i + 1);
+			if(this.childParticipants.length > 1){
+				Vue.delete(this.childParticipants, index);
+	
+				for(var i = 0; i < this.childParticipants.length; i++){
+					Vue.set(this.childParticipants[i], 'key', i + 1);
+				}
 			}
 		},
 		
@@ -159,6 +161,14 @@ var app = new Vue({
 		setCurrentListing: function(listing){
 			this.currentListing = listing;
 			this.booking.data.eventId = listing.eventId;
+			
+			/**
+			 * if(this.hold){
+			 *		delete currentHold();
+			 *		create new Hold();
+			 *	}	
+			 *
+			 */
 			
 			if(listing.choiceOptions || listing.textOptions){
 				this.status.classDetailsActive = true;
@@ -203,4 +213,6 @@ Vue.component('product-listing', {
 			</tr>`
 });
 
+
+app.addChildParticipant();
 app.status.eventsLoaded = true;

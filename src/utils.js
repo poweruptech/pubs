@@ -65,6 +65,11 @@ var utils = {
 			endTime: endDate.toISOString(),
 		};
 		return this.formatParameters(time);
+	},
+	
+	parseDate: function(dateStr){
+		var date = dateStr.split('-');
+		return new Date(date[0], date[1] - 1, date[2]);
 	}
 };
 
