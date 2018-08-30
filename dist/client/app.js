@@ -1,3 +1,4 @@
+
 /**
  * Fetches 2 periods of data (62 days) from the bookeo API and processes it. Once processed
  * it can be found in Powerup.data.processed[].
@@ -23,9 +24,8 @@ Powerup.network.fetch(1).then(resolve=>{
 	for(var listing = 0; listing < processed.length; listing++){
 		var tmpListing = processed[listing];
 		
-		if(tmpListing.apiBookingsAllowed == false){
+		if(!tmpListing.apiBookingsAllowed)
 			continue;
-		}
 		
 		tmpListing.price = `$${tmpListing.defaultRates[0].price.amount}`;
 
@@ -92,99 +92,20 @@ Powerup.network.fetch(1).then(resolve=>{
 });
 */
 
-var app = new Vue({
-	el: '#app',
-	data: {
-		booking: new Powerup.factory.booking(),
-		childParticipants: [],
-		currentListing: {},
-		customer: new Powerup.factory.customer(),
-		loadingmessage: 'Loading...',
-		processed_listings: Powerup.data.processed,
-		
-		messages: {
-			eventMessage: ''
-		},
-		
-		status:{
-			classDetailsActive: false,
-			eventsLoaded: false,
-			eventSuccess: false,
-			eventFailure: false,
-			signInActive: false
-		}
-	},
-	methods: {
-		addChildParticipant: function(){
-			if(this.childParticipants.length < 3){
-				let index = this.childParticipants.push(new Powerup.factory.childParticipant());
-				this.childParticipants[index - 1].key = index;
-			}else{
-				//TODO: Alert user that no more participants are allowed
-			}
-		},
+var testData = Powerup.data.processed;
+for(var i = 0; i < 10; i++){
+	testData.push({
+		name: '$$testclass!',
+		startDate: new Date(),
+		endDate: new Date(),
+		description: '<p> TADA </p>',
+		price: 100
+	});
+}
 
-		authUser: function(){
-			this.status.eventFailure = false;
-			this.status.eventSuccess = false;
-			
-			this.messages.eventMessage = "Logging in...";
-			
-			Powerup.network.auth(this.customer.auth.username, this.customer.auth.password).then(success=>{
-				Vue.set(customer, 'data', success.data);
-				this.messages.eventMessage = "Login successful!";
-				
-				setTimeout(()=>{
-					app.toggleActive('signInActive');
-				}, 1000);
-				
-			}).catch(failure=>{
-				this.status.eventFailure = true;
-				this.messages.eventMessage = 'Incorrect username or password';
-			});
-		},
 
-		deleteChildParticipant: function(index){
-			if(this.childParticipants.length > 1){
-				Vue.delete(this.childParticipants, index);
-	
-				for(var i = 0; i < this.childParticipants.length; i++){
-					Vue.set(this.childParticipants[i], 'key', i + 1);
-				}
-			}
-		},
-		
-		changeWindow: function(i){
-			this.currentWindow += i;	
-		},
-		
-		setCurrentListing: function(listing){
-			this.currentListing = listing;
-			this.booking.data.eventId = listing.eventId;
-			
-			/**
-			 * if(this.hold){
-			 *		delete currentHold();
-			 *		create new Hold();
-			 *	}	
-			 *
-			 */
-			
-			if(listing.choiceOptions || listing.textOptions){
-				this.status.classDetailsActive = true;
-			}
-			
-		},
 
-		toggleActive: function(activeEl){
-		//	this.status.signInActive = !this.status.signInActive;
-		this.status[activeEl] = !this.status[activeEl];
-		this.messages.eventMessage = '';
-		}
-	}
-});
-
-Vue.component('product-listing', {
+var product = Vue.component('product-listing', {
 	data: function(){
 		return {
 			visible: true
@@ -213,6 +134,138 @@ Vue.component('product-listing', {
 			</tr>`
 });
 
+var appView = Vue.component('app-view', {
+	name: 'app-view',
+	props: ['window'],
+	template: `<transition name='slide-in'>
+	<div class='window' v-if='window == this.$parent.status._current_window'><slot></slot></div>
+	</transition>`
+})
+
+var app = new Vue({
+	el: '#app',
+	components: {
+		appView: appView,
+		productListing: product
+	},
+	data: {
+		booking: new Powerup.factory.booking(),
+		childParticipants: [],
+		currentListing: {},
+		customer: new Powerup.factory.customer(),
+		loadingmessage: 'Loading...',
+		processed_listings: Powerup.data.processed,
+		pickupAuths: [],
+		
+		messages: {
+			eventMessage: ''
+		},
+		
+		status:{
+			_current_window: 0,
+			classDetailsActive: false,
+			eventsLoaded: false,
+			eventSuccess: false,
+			eventFailure: false,
+			signInActive: false
+		}
+	},
+	methods: {
+		addChildParticipant: function(){
+			if(this.childParticipants.length < 3){
+				let index = this.childParticipants.push(new Powerup.factory.childParticipant());
+				this.childParticipants[index - 1].key = index;
+			}
+		},
+
+		authUser: function(){
+			this.status.eventFailure = false;
+			this.status.eventSuccess = false;
+			
+			this.messages.eventMessage = "Logging in...";
+			
+			Powerup.network.auth(this.customer.auth.username, this.customer.auth.password).then(success=>{
+				Vue.set(customer, 'data', success.data);
+				this.messages.eventMessage = "Login successful!";
+				
+				setTimeout(()=>{
+					app.toggleActive('signInActive');
+				}, 1000);
+				
+			}).catch(failure=>{
+				this.status.eventFailure = true;
+				this.messages.eventMessage = 'Incorrect Username/Password';
+			});
+		},
+
+		changeWindow: function(i){
+			this.status._current_window += i;
+			if(this.status._current_window < 0 )
+				this.status._current_window = 0;
+			else if(this.status._current_window > 2)
+				this.status._current_window = 2;
+		},
+
+		deleteChildParticipant: function(index){
+			if(this.childParticipants.length > 1){
+				Vue.delete(this.childParticipants, index);
+	
+				for(var i = 0; i < this.childParticipants.length; i++){
+					Vue.set(this.childParticipants[i], 'key', i + 1);
+				}
+			}
+		},
+
+		formValidation: function(){
+			var err = [];
+			for(let customerData in this.customer){
+				if(!customerData){
+					err.push(`Missing info in "Your Details"`);
+					break;
+				}
+			}
+			for(let child in this.childParticipants){
+				for(let childData in child.data){
+					if(!childData){
+						err.push(`Missing info for Child ${childData.key + 1}`);
+						break;
+					}
+				}
+			}
+			if(err.length == 0)
+				this.changeWindow(1);
+			else
+				return err;
+		},
+
+		setCurrentListing: function(listing){
+			this.currentListing = listing;
+			this.booking.data.eventId = listing.eventId;
+			
+			/**
+			 * if(this.hold){
+			 *		delete currentHold();
+			 *		create new Hold();
+			 *	}	
+			 *
+			 */
+			
+			if(listing.choiceOptions || listing.textOptions){
+				this.status.classDetailsActive = true;
+			}
+			
+			this.status._current_window++;
+			
+		},
+
+		toggleActive: function(activeEl){
+		this.status[activeEl] = !this.status[activeEl];
+		this.messages.eventMessage = '';
+		}
+	}
+});
 
 app.addChildParticipant();
+
+// vvvv used for debugging purposes vvvv //
 app.status.eventsLoaded = true;

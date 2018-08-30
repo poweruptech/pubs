@@ -1,11 +1,10 @@
-import { URL } from './URL.js';
-
 var utils = {
 
 	/**
 	 * Formats a date into the desired string format 
+	 * @function formatDate
 	 * @param  {Date} date - Date object to format
-	 * @param  {String} format 
+	 * @param  {String} format - format of date
 	 * @return {String}
 	 */
 	formatDate: function(date, format){
@@ -67,6 +66,13 @@ var utils = {
 		return this.formatParameters(time);
 	},
 	
+	/**
+	 * Parses a date
+	 * @function parseDate
+	 * @param {String} dateStr - Date string to parse (DMY)
+	 * @return {Date}
+	 */
+	 
 	parseDate: function(dateStr){
 		var date = dateStr.split('-');
 		return new Date(date[0], date[1] - 1, date[2]);

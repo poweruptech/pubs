@@ -1,3 +1,8 @@
+/**
+ * Container for Customer
+ * @function Customer
+ * @param {Object} data 
+ */
 function Customer(data){
 	this.data = {
 		firstName: '',

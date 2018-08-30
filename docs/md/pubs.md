@@ -2,35 +2,39 @@
 
 ### Table of Contents
 
--   [Powerup][1]
-    -   [generateDate][2]
--   [formatParameters][3]
--   [getClassAvailability][4]
--   [getAllClasses][5]
--   [request][6]
--   [Booking][7]
+-   [auth](#auth)
+-   [fetch](#fetch)
+-   [getClassAvailability](#getclassavailability)
+-   [getAllClasses](#getallclasses)
+-   [request](#request)
+-   [formatDate](#formatdate)
+-   [formatParameters](#formatparameters)
+-   [generateDate](#generatedate)
+-   [parseDate](#parsedate)
 
-## Powerup
+## auth
 
-Global object used to interact with the API
-
-Type: [Object][8]
-
-### generateDate
-
-Generates a start + end time in ISO format and returns it as a query string
+Used for authenticating user login
 
 **Parameters**
 
--   `startDate` **[Date][9]** Starting date to use
+-   `uname` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Username
+-   `pword` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Password
 
-Returns **[String][10]** Formatted query string
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
 
-## formatParameters
+## fetch
 
-Converts the provided JSON object into a query string
+fetches all user created events and currently available events within
+the periods specified. A period is defined as 31 days. Periods are
+measured from the current date. Data is automatically stored in
+Powerup.data.unprocessed
 
-Returns **[String][10]** Formatted query string
+**Parameters**
+
+-   `periods` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** Num of periods to fetch data
+
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
 
 ## getClassAvailability
 
@@ -40,15 +44,15 @@ calls may have to be made.
 
 **Parameters**
 
--   `varname` **\[type]?** [description]
+-   `startDate` **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** Date to begin with
 
-Returns **[Promise][11]** 
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** When resolved, the promise returns the availability of Bookeo products (31 days)
 
 ## getAllClasses
 
 Calling this function returns all available Bookeo products
 
-Returns **[Promise][11]** When resolved, the promise will return all Bookeo products
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** When resolved, the promise will return all Bookeo products
 
 ## request
 
@@ -56,30 +60,49 @@ Used for making HTTP requests
 
 **Parameters**
 
--   `method` **[String][10]** Method to use when making an HTTP request
--   `url` **[String][10]** Destination for the request
--   `query` **[String][10]** Query string to be appended to the URL (Optional)
+-   `method` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Method to use when making an HTTP request
+-   `url` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Destination for the request
+-   `query` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Query string to be appended to the URL (Optional)
 
-Returns **[Promise][11]** 
+Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** When resolved, the promise returns the response received
 
-[1]: #powerup
+## formatDate
 
-[2]: #generatedate
+Formats a date into the desired string format
 
-[3]: #formatparameters
+**Parameters**
 
-[4]: #getclassavailability
+-   `date` **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** Date object to format
+-   `format` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** format of date
 
-[5]: #getallclasses
+Returns **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
 
-[6]: #request
+## formatParameters
 
-[7]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+Converts the provided JSON object into a query string
 
-[8]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Date
+**Parameters**
 
-[9]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+-   `obj` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)**  JSON object intended to be formatted into a JSON query string (key:val pairs)
 
-[10]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
+Returns **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Query string
 
-[11]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error
+## generateDate
+
+Generates a start + end time in ISO format and returns it as a query string
+
+**Parameters**
+
+-   `startDate` **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** Starting date to use
+
+Returns **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Formatted query string
+
+## parseDate
+
+Parses a date
+
+**Parameters**
+
+-   `dateStr` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Date string to parse (DMY)
+
+Returns **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** 

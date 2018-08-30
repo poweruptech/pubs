@@ -79,6 +79,12 @@ var network = {
 		return this.request("GET", URL.get_classes);
 	},
 	
+	/**
+	 * Creates a new Customer in Bookeo's database.
+	 * @function newCustomer
+	 * @param {Customer} customer Customer to be sent to Bookeo
+	 * @returns {Promise}
+	 */
 	newCustomer: function(customer){
 		return this.request("POST", URL.create_customer, undefined, customer.data);
 	},

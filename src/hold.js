@@ -1,30 +1,47 @@
 import { network } from './network.js';
 import { URL } from './URL.js';
 
-function Hold(booking){
-    this.create(booking).then(resolve=>{
-        this.data = resolve;
-    }).catch(err=>{
-       throw err; 
-    });
+function Hold(listing){
+    this.listing = listing;
 }
 
 Hold.prototype = {
-    create: function(booking){
+    /**
+     * Creates a hold for a given listing/event
+     * @function create
+     * @param {Object} listing Listing/event which will be placed on hold
+     * @returns {Promise}
+     */
+    create: function(listing){
+        if(this.listing !== undefined){
+            if(this.listing.eventId !== listing.eventId)
+                this.delete();
+            else
+                return Promise.reject(new Error("Hold already present"));
+        }
+            
+        this.listing = listing;
         return new Promise((resolve, reject)=>{
-            network.request("POST", URL.create_hold, undefined, booking.data)
+            network.request("POST", URL.create_hold, undefined, listing.data)
             .then(complete=>{
-                resolve(complete);
+                Object.assign(this, complete);
+                resolve();
             }).catch(err=>{
                 reject(err);
             });
         });
     },
+    
+    /**
+     * Removes the hold from the listing/event
+     * @function delete
+     * @returns {Promise}
+     */
     delete: function(){
         return new Promise((resolve, reject)=>{
             network.request("DELETE", URL.delete_hold, undefined, this.id)
             .then(complete=>{
-                resolve();
+                resolve("Successfully deleted!");
             }).catch(err=>{
                 reject(err);
             }); 

@@ -1,7 +1,11 @@
 table{
-	table-layout:fixed;
+	/*table-layout:fixed;*/
 	border-spacing: 15px;
-	width:auto;
+	/*width:auto;*/
+}
+
+.class-list{
+	width:100%;
 }
 
 .label{
@@ -12,13 +16,11 @@ table{
 	border: 2px solid black;
 	border-radius: 5px;
 }
+/*
 td{
 	width:auto;
 }
-
-p{
-	width:100%;
-}
+*/
 
 .textinput{
 	float:right;
@@ -27,10 +29,13 @@ p{
 	resize: none;
 }
 
-input[type="email"], input[type="text"], input[type="tel"]{
+input, select{
 	width: 100%;
 }
 
+.testalign{
+	width:auto;
+}
 .exit{
 	float:right;
 	background-color:red;
@@ -59,7 +64,7 @@ input[type="email"], input[type="text"], input[type="tel"]{
 	left: 0;
 	top: 0;
 	z-index:1;
-	background-color:rgba(0,0,0,0.5);
+	background-color:rgba(0,0,0,0.6);
 	width:100%;
 	height: 100%;
 }
@@ -69,8 +74,8 @@ input[type="email"], input[type="text"], input[type="tel"]{
 .modal-content{
 	z-index:0;
 	border-radius:10px;
-	margin:25%;
 	margin-top:25vh;
+	margin-left:33%;
 	padding:px;
 	background-color:#fefefe;
 	float:left;
@@ -97,4 +102,23 @@ input[type="email"], input[type="text"], input[type="tel"]{
 }
 .fade-enter, .fade-leave-to{
 	opacity: 0;
+}
+
+.slide-in-enter-active, .slide-in-leave-active{
+	transition: all .25s linear;
+}
+
+.slide-in-enter, .slide-in-leave-to{
+	transform: translateX(20px);
+	opacity: 0;
+}
+.window{
+	position: absolute;
+	top: 0;
+	width: 100%;
+}
+.window-footer{
+	position: fixed;
+	top: 90vh;
+	width: 100%;
 }

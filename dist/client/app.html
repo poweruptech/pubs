@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
 	<link rel="stylesheet" type="text/css" href="style/style.css">
 	<meta charset="utf-8">
@@ -8,284 +7,308 @@
 	<title>PUBS</title>
 	<script src="vue.js"></script>
 </head>
-
-<body>
-	<div id="app">
-
-		<div class='window'></div>
-		<div class='window'></div>
-		<div class='window'></div>
-		<div class='window'></div>
-
-		<div v-if="status.eventsLoaded == false" class="modal loading-screen">
-			<div class="modal-content">
-				<h1>{{messages.eventMessage}}</h1>
-			</div>
-		</div>
-
-		<div class="modal invisible">
-			<div class="modal-content">
-				<p></p>
-			</div>
-		</div>
-
-		<table>
-			<thead>
-				<tr>
-					<th>Class</th>
-					<th>Date</th>
-					<th>Total</th>
-				</tr>
-			</thead>
-			<tr is="product-listing" v-for='listing in processed_listings' :listing='listing' :key='listing.listing_key' @set-booking="setCurrentListing">
-		</table>
-
-
-		<button type="button" @click="toggleActive('signInActive')">Sign in</button>
-
-		<transition name="fade">
-			<div class="modal visible-block" v-if="status.signInActive">
+	<body>
+		<div id="app">
+			<div v-if="status.eventsLoaded == false" class="modal loading-screen">
 				<div class="modal-content">
-					<div class="modal-header">
-						<span class="exit" @click="toggleActive('signInActive')">&times</span>
-						<p>Sign in</p>	
+					<h1>{{messages.eventMessage}}</h1>
+				</div>
+			</div>
+			<app-view :window='0'>
+				<table class="class-list">
+					<thead>
+						<tr>
+							<th>Class</th>
+							<th>Date</th>
+							<th>Total</th>
+						</tr>
+					</thead>
+					<tr is="product-listing" v-for='listing in processed_listings' :listing='listing' :key='listing.listing_key' @set-booking="setCurrentListing">
+				</table>
+			</app-view>
+
+			<app-view :window='1'>
+				<button type="button" @click="toggleActive('signInActive')">Sign in</button>
+		
+				<transition name="fade">
+					<div class="modal visible-block" v-if="status.signInActive">
+						<div class="modal-content">
+							<div class="modal-header">
+								<span class="exit" @click="toggleActive('signInActive')">&times</span>
+								<p>Sign in</p>	
+							</div>
+							<form>
+								<table>
+									<tr>
+										<td><label>Username</label></td>
+										<td><input class="modal-input" type="text" v-model="customer.auth.username"/></td>
+									</tr>
+									<tr>
+										<td><label>Password</label></td>
+										<td><input class="modal-input" type="password" v-model="customer.auth.password"/></td>
+									</tr>
+									<tr>
+										<td>
+											<input type="submit" @click.prevent="authUser" value="Login"/>
+										</td>
+										<td :class="{'eventSuccess': status.eventSuccess, 'eventFail': status.eventFailure}">{{ messages.eventMessage }}</td>
+									</tr>
+								</table>
+							</form>
+						</div>
 					</div>
-					<form>
+				</transition>
+		
+				<form v-if="status.classDetailsActive">
+					<fieldset>
+						<legend>Class Details</legend>
+						<table>
+							<tr v-for="textOption in currentListing.textOptions">
+								<td v-if="textOption.required" required></td>
+								<td v-else></td>
+		
+							</tr>
+							<tr v-for="choiceOption in currentListing.choiceOptions">
+		
+							</tr>
+						</table>
+					</fieldset>
+				</form>
+				<form>
+					<fieldset>
+						<legend>Your Details</legend>
 						<table>
 							<tr>
-								<td><label>Username</label></td>
-								<td><input class="modal-input" type="text" v-model="customer.auth.username"/></td>
-							</tr>
-							<tr>
-								<td><label>Password</label></td>
-								<td><input class="modal-input" type="password" v-model="customer.auth.password"/></td>
+								<td>
+									<label>First name: </label>
+								</td>
+								<td>
+									<input type="text" v-model="customer.data.firstName" required/>
+								</td>
+								<td><label>Last name: </label></td>
+								<td><input type="text" v-model="customer.data.lastName" required/></td>
 							</tr>
 							<tr>
 								<td>
-									<input type="submit" @click.prevent="authUser"/>
+									<label>Email: </label>
 								</td>
-								<td :class="{'eventSuccess': status.eventSuccess, 'eventFail': status.eventFailure}">{{ messages.eventMessage }}</td>
+								<td>
+									<input type="email" v-model="customer.data.emailAddress" required>
+								</td>
+								<td class="label">
+									<input type="checkbox" id="checkbox">
+								</td>
+								<td>
+									<label for="checkbox">Subscribe to our newsletter</label>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<label>Phone: </label>
+								</td>
+								<td>
+									<input type="tel" v-model="customer.data.phoneNumbers[0].number">
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<p>*Pickup authorizations:</p></p>
+								</td>
+								<td colspan=3>
+									<p>Please list the name and cell phone numbers of all adults who may pick your child up</p>
+								</td>
+							</tr>
+							<tr>
+								<td class="label">
+									<label>Name:</label>
+								</td>
+								<td>
+									<input type="text" placeholder="John Smith" required/>
+								</td>
+								<td class="label">
+									<label>Phone:</label>
+								</td>
+								<td>
+									<input type="tel" placeholder="123-456-7890" required/>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<p>*Emergency Contact:</p>
+								</td>
+								<td colspan=4>
+									<p>Please enter two emergency contacts with phone numbers (apart from pick up authorizations)</p>
+								</td>
+							</tr>
+							<tr>
+								<td class="label">
+									<label>Name:</label>
+								</td>
+								<td>
+									<input type="text" placeholder="John Smith" required/>
+								</td>
+								<td class="label">
+									<label>Phone:</label>
+								</td>
+								<td>
+									<input type="tel" placeholder="123-456-7890" required/>
+								</td>
+							</tr>
+							<tr>
+								<td class="label">
+									<label>Name:</label>
+								</td>
+								<td>
+									<input type="text" placeholder="John Smith" required/>
+								</td>
+								<td class="label">
+									<label>Phone:</label>
+								</td>
+								<td>
+									<input type="tel" placeholder="123-456-7890" required/>
+								</td>
+							</tr>
+							<tr>
+								<td><p>How did you hear about this:</p></td>
+								<td colspan=4><p>How did you hear about this class?</p></td>
+							</tr>
+							<tr>
+								<td colspan=4 align="right">
+									<textarea class="textinput" rows=1></textarea>
+								</td>
 							</tr>
 						</table>
-					</form>
+					</fieldset>
+				</form>
+				<h1>Participants</h1>
+				<button type="button" @click="addChildParticipant">Add Child</button>
+		
+				<form v-for="child in childParticipants" :key="child.key">
+					<fieldset>
+						<legend>Child {{child.key}} </legend>
+						<span class="exit" @click="deleteChildParticipant(child.key - 1)">&times</span>
+						<table>
+							<tbody>
+								<tr>
+									<td>
+										<label>First Name:</label>
+									</td>
+									<td>
+										<input type="text" v-model="child.data.firstName" required/>
+									</td>
+									<td>
+										<label>Last Name:</label>
+									</td>
+									<td>
+										<input type="text" v-model="child.data.lastName" required/>
+									</td>
+								</tr>
+								<tr>
+									<td>
+										<label>Date of Birth:</label>
+									</td>
+									<td>
+										<input v-model="child.data.dateOfBirth" type="date" required>
+									</td>
+									<td>
+										<label>Gender:</label>
+									</td>
+									<td>
+										<select v-model="child.data.gender">
+											<option>Male</option>
+											<option>Female</option>
+											<option selected disabled>---</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td>School:</td>
+									<td>
+										 <input type="text" required>
+									</td>
+									<td>
+										Grade:
+									</td>
+									<td>
+										<select class="options" required>
+											<option selected disabled>-- Please Select an Option --</option>
+											<option>1</option>
+											<option>2</option>
+											<option>3</option>
+											<option>4</option>
+											<option>5</option>
+											<option>6</option>
+											<option>7</option>
+											<option>8</option>
+											<option>K</option>
+										</select>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</fieldset>
+				</form>
+				<form>
+					<fieldset>
+						<legend>Password</legend>
+						<table>
+							<tbody>
+								<tr>
+									<td><label>Password:</label></td>
+									<td><input type="password" required></input></td>
+								</tr>
+								<tr>
+									<td><label>Confirm Password:</label></td>
+									<td><input type="password" required/></td>
+								</tr>
+							</tbody>
+						</table>
+					</fieldset>
+				</form>
+				<div class="window-footer">
+					<span>
+						<button @click.prevent="changeWindow(-1)"> Prev </button>
+					</span>
+					<span>
+						<button @click="formValidation"> Next </button>
+					</span>
 				</div>
-			</div>
-		</transition>
+			</app-view>
+			<app-view :window='2'>
+				<div class="data-block class-info">
+					<p>{{ currentListing.name }}</p>
+					<p>Starting on {{ currentListing.startDate }}</p>
+				</div>
+				<div class="data-block customer-info">
+					<p>{{ customer.data.firstName }} {{ customer.data.lastName }}</p>
+					<p>{{ customer.data.emailAddress }} - {{ customer.data.phoneNumbers[0].number }}</p>
+				</div>
+				<fieldset>
+					<legend>Price</legend>
+				</fieldset>
+	
+				<fieldset>
+					<legend>Credit Card</legend>
+				</fieldset>
+	
+				<fieldset>
+					<legend>Cancellation Policy</legend>
+				</fieldset>
+	
+				<fieldset>
+					<legend>Terms and Conditions</legend>
+				</fieldset>
+				<input type="checkbox" required class="testalign"/>
+				<span>
+					I agree to the conditions and policies stated above
+				</span>
 
-		<form v-if="status.classDetailsActive">
-			<fieldset>
-				<legend>Class Details</legend>
-				<table>
-					<tr v-for="textOption in currentListing.textOptions">
-						<td v-if="textOption.required" required></td>
-						<td v-else></td>
-
-					</tr>
-					<tr v-for="choiceOption in currentListing.choiceOptions">
-
-					</tr>
-				</table>
-			</fieldset>
-		</form>
-
-		<form>
-			<fieldset>
-				<legend>Your Details</legend>
-				<table>
-					<tr>
-						<td>
-							<label>First name: </label>
-						</td>
-						<td>
-							<input type="text" v-model="customer.data.firstName" required/>
-						</td>
-						<td><label>Last name: </label></td>
-						<td><input type="text" v-model="customer.data.lastName" required/></td>
-					</tr>
-					<tr>
-						<td>
-							<label>Email: </label>
-						</td>
-						<td>
-							<input type="email" v-model="customer.data.emailAddress" required>
-						</td>
-						<td class="label">
-							<input type="checkbox" id="checkbox" checked>
-						</td>
-						<td>
-							<label for="checkbox">Subscribe to our newsletter</label>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>Phone: </label>
-						</td>
-						<td>
-							<input type="tel" v-model="customer.data.phoneNumbers[0].number">
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<p>*Pickup authorizations:</p></p>
-						</td>
-						<td colspan=3>
-							<p>Please list the name and cell phone numbers of all adults who may pick your child up</p>
-						</td>
-					</tr>
-					<tr>
-						<td class="label">
-							<label>Name:</label>
-						</td>
-						<td>
-							<input type="text" placeholder="John Smith" required/>
-						</td>
-						<td class="label">
-							<label>Phone:</label>
-						</td>
-						<td>
-							<input type="tel" placeholder="123-456-7890" required/>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<p>*Emergency Contact:</p>
-						</td>
-						<td colspan=4>
-							<p>Please enter two emergency contacts with phone numbers (apart from pick up authorizations)</p>
-						</td>
-					</tr>
-					<tr>
-						<td class="label">
-							<label>Name:</label>
-						</td>
-						<td>
-							<input type="text" placeholder="John Smith" required/>
-						</td>
-						<td class="label">
-							<label>Phone:</label>
-						</td>
-						<td>
-							<input type="tel" placeholder="123-456-7890" required/>
-						</td>
-					</tr>
-					<tr>
-						<td class="label">
-							<label>Name:</label>
-						</td>
-						<td>
-							<input type="text" placeholder="John Smith" required/>
-						</td>
-						<td class="label">
-							<label>Phone:</label>
-						</td>
-						<td>
-							<input type="tel" placeholder="123-456-7890" required/>
-						</td>
-					</tr>
-					<tr>
-						<td><p>How did you hear about this:</p></td>
-						<td colspan=4><p>How did you hear about this class?</p></td>
-					</tr>
-					<tr>
-						<td colspan=4 align="right">
-							<textarea class="textinput" rows=1></textarea>
-						</td>
-					</tr>
-				</table>
-			</fieldset>
-		</form>
-
-		<h1>Participants</h1>
-		<button type="button" @click="addChildParticipant">Add Child</button>
-
-		<form v-for="child in childParticipants" :key="child.key">
-			<fieldset>
-				<legend>Child {{child.key}} </legend>
-				<span class="exit" @click="deleteChildParticipant(child.key - 1)">&times</span>
-				<table>
-					<tbody>
-						<tr>
-							<td>
-								<label>First Name:</label>
-							</td>
-							<td>
-								<input type="text" v-model="child.data.firstName" required/>
-							</td>
-							<td>
-								<label>Last Name:</label>
-							</td>
-							<td>
-								<input type="text" v-model="child.data.lastName" required/>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								Gender:
-							</td>
-							<td>
-								<select v-model="child.data.gender">
-									<option>Male</option>
-									<option>Female</option>
-									<option selected disabled>---</option>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<label>Date of Birth:</label>
-							</td>
-							<td>
-								<input v-model="child.data.dateOfBirth" type="date" required>
-							</td>
-						</tr>
-						<tr>
-							<td>School:</td>
-							<td>
-								 <input type="text" required>
-							</td>
-							<td>
-								Grade:
-							</td>
-							<td>
-								<select required>
-									<option selected disabled>-- Please Select an Option --</option>
-									<option>1</option>
-									<option>2</option>
-									<option>3</option>
-									<option>4</option>
-									<option>5</option>
-									<option>6</option>
-									<option>7</option>
-									<option>8</option>
-									<option>K</option>
-								</select>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</fieldset>
-		</form>
-
-		<form>
-			<fieldset>
-				<legend>Password</legend>
-				<table>
-					<tbody>
-						<tr>
-							<td><label>Password:</label></td>
-							<td><input type="password" required></input></td>
-						</tr>
-						<tr>
-							<td><label>Confirm Password:</label></td>
-							<td><input type="password" required/></td>
-						</tr>
-					</tbody>
-				</table>
-			</fieldset>
-		</form>
-	</div>
-	<script src="pubs_dist.js"></script>
-	<script src="app.js" defer></script>
-</body>
-
+				<span class="window-footer">
+					<button @click="changeWindow(-1)"> Prev </button>
+				</span>
+			</app-view>
+		</div>
+		<script src="pubs_dist.js"></script>
+		<script src="app.js" defer></script>
+	</body>
 </html>
