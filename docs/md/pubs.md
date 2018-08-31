@@ -2,107 +2,286 @@
 
 ### Table of Contents
 
--   [auth](#auth)
--   [fetch](#fetch)
--   [getClassAvailability](#getclassavailability)
--   [getAllClasses](#getallclasses)
--   [request](#request)
--   [formatDate](#formatdate)
--   [formatParameters](#formatparameters)
--   [generateDate](#generatedate)
--   [parseDate](#parsedate)
+-   [Booking][1]
+    -   [Parameters][2]
+    -   [send][3]
+    -   [setData][4]
+-   [ChildParticipant][5]
+    -   [validate][6]
+-   [Customer][7]
+    -   [Parameters][8]
+    -   [validate][9]
+-   [Hold][10]
+    -   [create][11]
+        -   [Parameters][12]
+    -   [delete][13]
+-   [Network][14]
+    -   [auth][15]
+        -   [Parameters][16]
+    -   [fetch][17]
+        -   [Parameters][18]
+    -   [getClassAvailability][19]
+        -   [Parameters][20]
+    -   [getAllClasses][21]
+    -   [newCustomer][22]
+        -   [Parameters][23]
+    -   [request][24]
+        -   [Parameters][25]
+-   [Utils][26]
+    -   [formatDate][27]
+        -   [Parameters][28]
+    -   [formatParameters][29]
+        -   [Parameters][30]
+    -   [generateDate][31]
+        -   [Parameters][32]
+    -   [parseDate][33]
+        -   [Parameters][34]
 
-## auth
+## Booking
+
+A barebones container for a Booking.
+
+### Parameters
+
+-   `data` **[Object][35]** Data to be sent with the Booking. Required data is 
+    specified in the Bookeo API.
+
+### send
+
+Sends the booking and data to Bookeo.
+
+-   Throws **[Error][36]** If an eventID and customer, or customerId are not 
+    specified, the Booking will not be completed.
+
+Returns **[Promise][37]** 
+
+### setData
+
+Sets data for the booking.
+
+## ChildParticipant
+
+### validate
+
+Validates Child's information on form submission.
+
+## Customer
+
+Container for Customer
+
+### Parameters
+
+-   `data` **[Object][35]** 
+
+### validate
+
+Validates Customer's info on form submission
+
+## Hold
+
+### create
+
+Creates a hold for a given listing/event
+
+#### Parameters
+
+-   `listing` **[Object][35]** Listing/event which will be placed on hold
+
+Returns **[Promise][37]** 
+
+### delete
+
+Removes the hold from the listing/event
+
+Returns **[Promise][37]** 
+
+## Network
+
+### auth
 
 Used for authenticating user login
 
-**Parameters**
+#### Parameters
 
--   `uname` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Username
--   `pword` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Password
+-   `uname` **[String][38]** Username
+-   `pword` **[String][38]** Password
 
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+Returns **[Promise][37]** 
 
-## fetch
+### fetch
 
 fetches all user created events and currently available events within
 the periods specified. A period is defined as 31 days. Periods are
 measured from the current date. Data is automatically stored in
 Powerup.data.unprocessed
 
-**Parameters**
+#### Parameters
 
--   `periods` **[Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)** Num of periods to fetch data
+-   `periods` **[Number][39]** Num of periods to fetch data
 
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** 
+Returns **[Promise][37]** 
 
-## getClassAvailability
+### getClassAvailability
 
 Calling this function returns availibility for classes. The Bookeo API
 can only return classes 31 days after a specified start date, so multiple
 calls may have to be made.
 
-**Parameters**
+#### Parameters
 
--   `startDate` **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** Date to begin with
+-   `startDate` **[Date][40]** Date to begin with
 
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** When resolved, the promise returns the availability of Bookeo products (31 days)
+Returns **[Promise][37]** When resolved, the promise returns the availability of Bookeo products (31 days)
 
-## getAllClasses
+### getAllClasses
 
 Calling this function returns all available Bookeo products
 
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** When resolved, the promise will return all Bookeo products
+Returns **[Promise][37]** When resolved, the promise will return all Bookeo products
 
-## request
+### newCustomer
+
+Creates a new Customer in Bookeo's database.
+
+#### Parameters
+
+-   `customer` **[Customer][41]** Customer to be sent to Bookeo
+
+Returns **[Promise][37]** 
+
+### request
 
 Used for making HTTP requests
 
-**Parameters**
+#### Parameters
 
--   `method` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Method to use when making an HTTP request
--   `url` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Destination for the request
--   `query` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Query string to be appended to the URL (Optional)
+-   `method` **[String][38]** Method to use when making an HTTP request
+-   `url` **[String][38]** Destination for the request
+-   `query` **[String][38]** Query string to be appended to the URL (Optional)
 
-Returns **[Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)** When resolved, the promise returns the response received
+Returns **[Promise][37]** When resolved, the promise returns the response received
 
-## formatDate
+## Utils
+
+### formatDate
 
 Formats a date into the desired string format
 
-**Parameters**
+#### Parameters
 
--   `date` **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** Date object to format
--   `format` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** format of date
+-   `date` **[Date][40]** Date object to format
+-   `format` **[String][38]** format of date
 
-Returns **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
+Returns **[String][38]** 
 
-## formatParameters
+### formatParameters
 
 Converts the provided JSON object into a query string
 
-**Parameters**
+#### Parameters
 
--   `obj` **[Object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)**  JSON object intended to be formatted into a JSON query string (key:val pairs)
+-   `obj` **[Object][35]**  JSON object intended to be formatted into a JSON query string (key:val pairs)
 
-Returns **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Query string
+Returns **[String][38]** Query string
 
-## generateDate
+### generateDate
 
 Generates a start + end time in ISO format and returns it as a query string
 
-**Parameters**
+#### Parameters
 
--   `startDate` **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** Starting date to use
+-   `startDate` **[Date][40]** Starting date to use
 
-Returns **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Formatted query string
+Returns **[String][38]** Formatted query string
 
-## parseDate
+### parseDate
 
 Parses a date
 
-**Parameters**
+#### Parameters
 
--   `dateStr` **[String](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** Date string to parse (DMY)
+-   `dateStr` **[String][38]** Date string to parse (DMY)
 
-Returns **[Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)** 
+Returns **[Date][40]** 
+
+[1]: #booking
+
+[2]: #parameters
+
+[3]: #send
+
+[4]: #setdata
+
+[5]: #childparticipant
+
+[6]: #validate
+
+[7]: #customer
+
+[8]: #parameters-1
+
+[9]: #validate-1
+
+[10]: #hold
+
+[11]: #create
+
+[12]: #parameters-2
+
+[13]: #delete
+
+[14]: #network
+
+[15]: #auth
+
+[16]: #parameters-3
+
+[17]: #fetch
+
+[18]: #parameters-4
+
+[19]: #getclassavailability
+
+[20]: #parameters-5
+
+[21]: #getallclasses
+
+[22]: #newcustomer
+
+[23]: #parameters-6
+
+[24]: #request
+
+[25]: #parameters-7
+
+[26]: #utils
+
+[27]: #formatdate
+
+[28]: #parameters-8
+
+[29]: #formatparameters
+
+[30]: #parameters-9
+
+[31]: #generatedate
+
+[32]: #parameters-10
+
+[33]: #parsedate
+
+[34]: #parameters-11
+
+[35]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+
+[36]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error
+
+[37]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
+
+[38]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+
+[39]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+
+[40]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Date
+
+[41]: #customer

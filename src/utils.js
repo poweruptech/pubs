@@ -1,7 +1,10 @@
+/**
+ * @namespace Utils
+ */
 var utils = {
-
 	/**
-	 * Formats a date into the desired string format 
+	 * Formats a date into the desired string format
+	 * @memberof Utils 
 	 * @function formatDate
 	 * @param  {Date} date - Date object to format
 	 * @param  {String} format - format of date
@@ -38,6 +41,7 @@ var utils = {
 
 	/**
 	 * Converts the provided JSON object into a query string
+	 * @memberof Utils
 	 * @function formatParameters
 	 * @param  {Object} obj -  JSON object intended to be formatted into a JSON query string (key:val pairs)
 	 * @return {String} Query string
@@ -53,6 +57,7 @@ var utils = {
 
 	/**
 	 * Generates a start + end time in ISO format and returns it as a query string
+	 * @memberof Utils
 	 * @param {Date} startDate - Starting date to use
 	 * @return {String} Formatted query string
 	 */
@@ -68,6 +73,7 @@ var utils = {
 	
 	/**
 	 * Parses a date
+	 * @memberof Utils
 	 * @function parseDate
 	 * @param {String} dateStr - Date string to parse (DMY)
 	 * @return {Date}

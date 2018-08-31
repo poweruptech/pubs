@@ -4,7 +4,7 @@ import { Hold } from './hold';
 
 /**
  * A barebones container for a Booking.
- * @function Booking
+ * @class Booking
  * @param {Object} data Data to be sent with the Booking. Required data is 
  * specified in the Bookeo API.
  */
@@ -20,6 +20,7 @@ Booking.prototype = {
 
 	/**
 	 * Sends the booking and data to Bookeo.
+	 * @memberof Booking
 	 * @function send
 	 * @returns {Promise}
 	 * @throws {Error} If an eventID and customer, or customerId are not 
@@ -38,6 +39,7 @@ Booking.prototype = {
 	},
 	/**
 	 * Sets data for the booking.
+	 * @memberof Booking
 	 * @function setData
 	 */
 	setData: function(data){this.data = data;}

@@ -74,6 +74,10 @@
 						</table>
 					</fieldset>
 				</form>
+
+				<ul v-if="customer.status.fail">
+					<li v-for="offense in customer.status.errors"> {{ offense }}</li>
+				</ul>
 				<form>
 					<fieldset>
 						<legend>Your Details</legend>
@@ -182,6 +186,13 @@
 				</form>
 				<h1>Participants</h1>
 				<button type="button" @click="addChildParticipant">Add Child</button>
+
+				<div v-for="offender in status.validErr.child">
+					<h3>{{offender.owner}}</h3>
+					<ul>
+						<li v-for="offense in offender.errors">{{ offense }}</li>
+					</ul>
+				</div>
 		
 				<form v-for="child in childParticipants" :key="child.key">
 					<fieldset>

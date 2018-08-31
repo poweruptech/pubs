@@ -21,5 +21,8 @@
     "url": "https://github.com/poweruptech/pubs/issues"
   },
   "homepage": "https://github.com/poweruptech/pubs#readme",
-  "dependencies": {}
+  "dependencies": {
+    "jest": "^23.5.0",
+    "rollup-plugin-cleanup": "^3.0.0"
+  }
 }

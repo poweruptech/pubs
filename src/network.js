@@ -2,10 +2,14 @@ import { data as p_data } from './data.js';
 import { URL } from './URL.js';
 import { utils } from './utils.js';
 
+/**
+ * @namespace Network
+ */
 var network = {
 
 	/**
 	 * Used for authenticating user login
+	 * @memberof Network
 	 * @param  {String} uname - Username
 	 * @param  {String} pword - Password
 	 * @return {Promise}          
@@ -19,6 +23,7 @@ var network = {
 	 * the periods specified. A period is defined as 31 days. Periods are
 	 * measured from the current date. Data is automatically stored in
 	 * Powerup.data.unprocessed
+	 * @memberof Network
 	 * @param  {Number} periods - Num of periods to fetch data
 	 * @return {Promise}         
 	 */
@@ -62,6 +67,7 @@ var network = {
 	 * Calling this function returns availibility for classes. The Bookeo API
 	 * can only return classes 31 days after a specified start date, so multiple
 	 * calls may have to be made.
+	 * @memberof Network
 	 * @function getClassAvailability
 	 * @param {Date} startDate - Date to begin with
 	 * @return {Promise} When resolved, the promise returns the availability of Bookeo products (31 days)
@@ -72,6 +78,7 @@ var network = {
 
 	/**
 	 * Calling this function returns all available Bookeo products
+	 * @memberof Network
 	 * @function getAllClasses
 	 * @return {Promise} When resolved, the promise will return all Bookeo products
 	 */
@@ -81,6 +88,7 @@ var network = {
 	
 	/**
 	 * Creates a new Customer in Bookeo's database.
+	 * @memberof Network
 	 * @function newCustomer
 	 * @param {Customer} customer Customer to be sent to Bookeo
 	 * @returns {Promise}
@@ -91,6 +99,7 @@ var network = {
 
 	/**
  	 * Used for making HTTP requests
+	 * @memberof Network
  	 * @function request
  	 * @todo Must implement verbose error descriptions
  	 * @param  {String} method - Method to use when making an HTTP request

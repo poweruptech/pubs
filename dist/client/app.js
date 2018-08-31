@@ -95,10 +95,10 @@ Powerup.network.fetch(1).then(resolve=>{
 var testData = Powerup.data.processed;
 for(var i = 0; i < 10; i++){
 	testData.push({
-		name: '$$testclass!',
+		name: 'Placeholder class',
 		startDate: new Date(),
 		endDate: new Date(),
-		description: '<p> TADA </p>',
+		description: '<p> This is my class</p> <br> <p> Testing description </p>',
 		price: 100
 	});
 }
@@ -125,7 +125,7 @@ var product = Vue.component('product-listing', {
 				<td v-if='visible'>{{listing.name}}</td>
 				<td v-if='visible'>{{listing.startDate}} - {{listing.endDate}}</td>
 				<td v-if='visible'>{{listing.price}}</td>
-				<td v-if='!visible' colspan = 2
+				<td v-if='!visible' colspan='2'
 				v-html='listing.description' class='pdescription'>
 				</td>
 				<td v-if='!visible'>
@@ -167,7 +167,11 @@ var app = new Vue({
 			eventsLoaded: false,
 			eventSuccess: false,
 			eventFailure: false,
-			signInActive: false
+			signInActive: false,
+			validErr: {
+				child: [],
+				customer: {}
+			}
 		}
 	},
 	methods: {
@@ -217,25 +221,32 @@ var app = new Vue({
 		},
 
 		formValidation: function(){
-			var err = [];
-			for(let customerData in this.customer){
-				if(!customerData){
-					err.push(`Missing info in "Your Details"`);
-					break;
+			this.status.validErr.child = [];
+			this.status.validErr.customer = {};
+			
+			this.customer.validate();
+
+			if(this.customer.status.fail){
+				this.status.validErr.customer = {
+					owner: 'Customer',
+					errors: this.customer.status.errors
+				};
+			}
+
+			for(let child of this.childParticipants){
+				child.validate();
+
+				if(child.status.fail){
+					this.status.validErr.child.push({
+						owner: `Child ${child.key}`,
+						errors: child.status.errors
+					});
 				}
 			}
-			for(let child in this.childParticipants){
-				for(let childData in child.data){
-					if(!childData){
-						err.push(`Missing info for Child ${childData.key + 1}`);
-						break;
-					}
-				}
-			}
-			if(err.length == 0)
+
+
+			if(!this.status.validErr.child.length && !this.status.validErr.customer.length)
 				this.changeWindow(1);
-			else
-				return err;
 		},
 
 		setCurrentListing: function(listing){

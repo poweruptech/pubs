@@ -146,8 +146,43 @@
 		}
 	};
 
+	function Hold(listing){
+	    this.listing = listing;
+	}
+	Hold.prototype = {
+	    create: function(listing){
+	        if(this.listing !== undefined){
+	            if(this.listing.eventId !== listing.eventId)
+	                this.delete();
+	            else
+	                return Promise.reject(new Error("Hold already present"));
+	        }
+	        this.listing = listing;
+	        return new Promise((resolve, reject)=>{
+	            network.request("POST", URL.create_hold, undefined, listing.data)
+	            .then(complete=>{
+	                Object.assign(this, complete);
+	                resolve();
+	            }).catch(err=>{
+	                reject(err);
+	            });
+	        });
+	    },
+	    delete: function(){
+	        return new Promise((resolve, reject)=>{
+	            network.request("DELETE", URL.delete_hold, undefined, this.id)
+	            .then(complete=>{
+	                resolve("Successfully deleted!");
+	            }).catch(err=>{
+	                reject(err);
+	            });
+	        });
+	    }
+	};
+
 	function Booking(data){
 		this.data = {};
+		this.hold = new Hold();
 		if(data !== undefined)
 			this.data = data;
 	}
@@ -167,6 +202,10 @@
 	};
 
 	function Customer(data){
+		this.auth = {
+			username: '',
+			password: ''
+		};
 		this.data = {
 			firstName: '',
 			lastName: '',
@@ -176,9 +215,9 @@
 				type: ''
 			}]
 		};
-		this.auth = {
-			username: '',
-			password: ''
+		this.status = {
+			errors: [],
+			fail: true
 		};
 		if(data !== undefined)
 			Object.assign(this.data, data);
@@ -186,6 +225,22 @@
 	Customer.prototype = {
 		assign: function(data){
 			Object.assign(this.data, data);
+		},
+		validate: function(){
+			this.status.errors = [];
+			let err = this.status.errors;
+			switch(0){
+				case this.data.firstName.length:
+					err.push("First Name is required");
+				case this.data.lastName.length:
+					err.push("Last Name is required");
+				case this.data.emailAddress.length:
+					err.push("Email Address is required");
+			}
+			if(!err.length)
+				this.status.fail = false;
+			else
+				this.status.fail = true;
 		}
 	};
 
@@ -198,9 +253,31 @@
 			dateOfBirth: '',
 			customFields: []
 		};
+		this.status = {
+			errors: [],
+			fail: true
+		};
 		this.categoryIndex;
 		this.personId = 'PUNKNOWN';
 	}
+	ChildParticipant.prototype = {
+		validate: function(){
+			this.status.errors = [];
+			let err = this.status.errors;
+			switch(0){
+				case this.data.firstName.length:
+					err.push("First Name is required");
+				case this.data.lastName.length:
+					err.push("Last Name is required");
+				case this.data.dateOfBirth.length:
+					err.push("Date of Birth is required");
+			}
+			if(!err.length)
+				this.status.fail = false;
+			else
+				this.status.fail = true;
+		}
+	};
 
 	var factory = {
 		booking: Booking,

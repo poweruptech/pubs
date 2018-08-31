@@ -1,6 +1,10 @@
 import { network } from './network.js';
 import { URL } from './URL.js';
 
+/**
+ * @class Hold
+ * @param {} listing 
+ */
 function Hold(listing){
     this.listing = listing;
 }
@@ -8,6 +12,7 @@ function Hold(listing){
 Hold.prototype = {
     /**
      * Creates a hold for a given listing/event
+     * @memberof Hold
      * @function create
      * @param {Object} listing Listing/event which will be placed on hold
      * @returns {Promise}
@@ -34,6 +39,7 @@ Hold.prototype = {
     
     /**
      * Removes the hold from the listing/event
+     * @memberof Hold
      * @function delete
      * @returns {Promise}
      */
