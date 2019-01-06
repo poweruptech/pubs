@@ -2,11 +2,24 @@ var data = {
 	booking: {},
 	customer: {},
 	childParticipants: [],
-	processed: [],
-		unprocessed: {
-			eventProducts: [],
-			eventData: []
+	//processed: [],
+	processed: {
+		type: {
+			private: [],
+			course: []
+		}
+	},
+	
+	queue: {
+		eventProducts: [],
+		eventData: []
+	},
+	
+	unprocessed: {
+		eventProducts: [],
+		eventData: []
 	}
+
 };
 
 export { data };

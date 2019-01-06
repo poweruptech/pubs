@@ -4,7 +4,7 @@
  * it can be found in Powerup.data.processed[].
  */
 
-/*
+
 Powerup.network.fetch(1).then(resolve=>{
 	app.messages.eventMessage = "Loading...";
 	let eventProducts = Powerup.data.unprocessed.eventProducts; //all events created by owner
@@ -90,9 +90,11 @@ Powerup.network.fetch(1).then(resolve=>{
 	app.messages.eventMessage = `${ reject }. Trying again...`;
 	console.error(`Network error: ${ reject }`);
 });
-*/
+
 
 var testData = Powerup.data.processed;
+
+/*
 for(var i = 0; i < 10; i++){
 	testData.push({
 		name: 'Placeholder class',
@@ -103,7 +105,7 @@ for(var i = 0; i < 10; i++){
 	});
 }
 
-
+*/
 
 var product = Vue.component('product-listing', {
 	data: function(){
