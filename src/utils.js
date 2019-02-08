@@ -89,8 +89,17 @@ var utils = {
 
 	/**
 	 * @function processListings
-	 * @param { Object } data PLACEHOLDER	
-	 * @param { Object } options PLACEHOLDER
+	 * @param { Object } data Listings to process
+	 * @param { Object } options Settings for the listing processor
+	 * 
+	 * Options Schema
+	 * {
+	 * 	type (String): Type of class (Defaults to 'fixed')
+	 * 	onlyInclude (String): Classes which have the given title will be the only ones included
+	 * 	exclude (String): Excludes classes with the given title
+	 * 	locationToSearch (String): Where to search for string at (ie. description, title, anywhere). Defaults to anywhere
+	 * }
+	 * 
 	 * @param { Object } storage (Optional) Location to store processed listings
 	 */
 	processListings: function(data, options){
@@ -188,6 +197,22 @@ var utils = {
 		app.messages.eventMessage = '';
 
 		app.eventsLoaded = true;
+	},
+
+/**
+ * @function Search
+ * @param {JSON} dataset JSON object where term will be searched in (most likely Bookeo dataset)
+ * @param {String} term Term to search for in data set
+ * @param {String} type Where to search term in (ie. description, title, all)
+ * @returns {Array} Array will contain all instances where the term showed up. If none are found, array will be empty
+ */
+	search: function(dataset, term, type){
+		var len = dataset.length;
+
+		switch(type){
+			case "description":
+			case "":
+		}
 	}
 };
 

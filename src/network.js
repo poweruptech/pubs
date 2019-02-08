@@ -56,7 +56,7 @@ var network = {
 					}
 				}
 
-				resolve("Data retrieval successful!");
+				resolve(p_data.unprocessed.eventData);
 			}).catch(err=>{
 				reject(err);
 			});
