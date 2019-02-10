@@ -103,9 +103,9 @@ var utils = {
 	 * @param { Object } storage (Optional) Location to store processed listings
 	 */
 	processListings: function(data, options){
-		let eventProducts = [];
-		let eventData = [];
-		let processed = [];
+		//let eventProducts = [];
+		//let eventData = [];
+		//let processed = [];
 
 		let eventProducts = storage.unprocessed.eventProducts; //all events created by owner
 		let eventData = storage.unprocessed.eventData; //actual events to be booked

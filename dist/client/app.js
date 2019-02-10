@@ -1,3 +1,5 @@
+/*global Powerup*/
+
 
 /**
  * Fetches 2 periods of data (62 days) from the bookeo API and processes it. Once processed

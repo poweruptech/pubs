@@ -1,4 +1,4 @@
-import { data as p_data } from './data.js';
+import { data as p_data, cache } from './data.js';
 import { URL } from './URL.js';
 import { utils } from './utils.js';
 
@@ -95,6 +95,21 @@ var network = {
 	 */
 	newCustomer: function(customer){
 		return this.request("POST", URL.create_customer, undefined, customer.data);
+	},
+	
+	/**
+	 * Pings the host for any updates
+	 * @function ping
+	 * 
+	 */
+	ping: function(){
+		this.request("GET", URL.check_update, undefined, localStorage.getItem(cache.$key)).then(res=>{
+			if(res.reply){
+				
+			}else{
+				
+			}
+		});
 	},
 
 	/**

@@ -56,6 +56,6 @@ server.get('/get/availability', (req, res, next)=>{
 	network.request({req:req, res:res, next:next}, URL.get_availability_slots, req.query);
 });
 
-server.listen(3000, ()=>{
+server.listen(process.env.PORT, process.env.IP, ()=>{
 	console.log("Server is running at:", server.url);
 });
