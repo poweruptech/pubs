@@ -1,6 +1,6 @@
 var axios = require('axios');
 
-const API_KEY = ''
+const API_KEY = '';
 const SECRET_KEY = '';
 
 const bookeo = axios.create({

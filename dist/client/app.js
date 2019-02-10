@@ -1,10 +1,15 @@
-/*global Powerup*/
+/*global Powerup Vue*/
 
 
 /**
  * Fetches 2 periods of data (62 days) from the bookeo API and processes it. Once processed
  * it can be found in Powerup.data.processed[].
  */
+
+
+Powerup.network.fetch(1).then(result=>{
+	Powerup.cache.save("listings" , Powerup.utils.process(result));
+});
 
 
 Powerup.network.fetch(1).then(resolve=>{

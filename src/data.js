@@ -34,17 +34,17 @@ var cache = {
 	 */
 	 
 	access: function(key){
-		if(window.localStorage.getItem(key)){
-			console.error(`No cached copy of ${ key } available`);
-			throw new Error("");
-		}else{
-			var data = window.localStorage.getItem(key);
+		if(window.localStorage.getItem(key) == null)
+			throw new Error(`No cached copy is saved in "${ key }"`);
 			
+		var data = window.localStorage.getItem(key);
+			
+		if(data.dateSaved){
 			if(3600000 < (new Date().getTime() - data.dateSaved)) //If data stored in key is 1 hr < old, it's considered outdated.
 				console.log("Cached copy is out of date, consider updating it");
-
-			return data;
 		}
+		
+		return data;
 	},
 	
 	clearAll: function(){
@@ -56,8 +56,11 @@ var cache = {
 	 * @param { String } key Key used for saving data
 	 * @param { Object } data Data to save onto local computer
 	 */
-	save: function(key, data){
-		data.dateSaved = new Date().getTime();
+	save: function(key, data, type){
+		
+		if(type == "listing")
+			data.dateSaved = new Date().getTime();
+			
 		window.localStorage.setItem(key, JSON.stringify(data));
 	},
 	
@@ -71,7 +74,7 @@ var cache = {
 			 */
 			 
 		}else
-			throw Error(`Cannot update ${ key } as it does not exist`);
+			throw Error(`Cannot update "${ key }"" as it does not exist`);
 	}
 	 
 };

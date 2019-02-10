@@ -101,8 +101,10 @@ var utils = {
 	 * }
 	 * 
 	 * @param { Object } storage (Optional) Location to store processed listings
+	 * 
+	 * @return { Array } Processed listings
 	 */
-	processListings: function(data, options){
+	process: function(data, options){
 		//let eventProducts = [];
 		//let eventData = [];
 		//let processed = [];
@@ -193,10 +195,6 @@ var utils = {
 				storage.processed.push(processed[listing]);
 			}
 		}
-		
-		app.messages.eventMessage = '';
-
-		app.eventsLoaded = true;
 	},
 
 /**

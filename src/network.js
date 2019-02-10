@@ -1,3 +1,5 @@
+/*global localStorage*/
+
 import { data as p_data, cache } from './data.js';
 import { URL } from './URL.js';
 import { utils } from './utils.js';
@@ -100,9 +102,8 @@ var network = {
 	/**
 	 * Pings the host for any updates
 	 * @function ping
-	 * 
 	 */
-	ping: function(){
+	ping: function(target){
 		this.request("GET", URL.check_update, undefined, localStorage.getItem(cache.$key)).then(res=>{
 			if(res.reply){
 				
