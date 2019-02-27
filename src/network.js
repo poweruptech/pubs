@@ -40,7 +40,7 @@ var network = {
 			for(var i = 0; i < periods; i++){
 				let startDate = new Date();
 				startDate.setDate(startDate.getDate() + (31 * i));
-				dataToRetrieve.push(this.getEventAvailability(startDate));
+				dataToRetrieve.push(this.getClassMetadata(startDate));
 			}
 			
 			/**
@@ -50,18 +50,27 @@ var network = {
 			 * server and stored locally.
 			 */
 			if(!cache.exists("classes"))
-				dataToRetrieve.push(this.getAllEvents());
+				dataToRetrieve.push(this.getAllClasses());
 			else{
-				network.ping(['classes']).then(result=>{
-					classes = cache.access("classes");
+				network.ping({
+					target: ['classes'],
+					lastUpdated: classes.lastUpdated
+				}).then(result=>{
+					classes = JSON.parse(cache.access("classes"));
 				}).catch(err=>{
-					dataToRetrieve.push(this.getAllEvents());
+					if(err.status == "OK")
+						dataToRetrieve.push(this.getAllClasses());
+					else
+						throw new Error(err.reason);
 				});
 			}
 
 			Promise.all(dataToRetrieve).then(completed=>{
 				var eventList = completed.pop();
-
+				
+				var lastUpdatedTime = new Date();
+				lastUpdatedTime = lastUpdatedTime.getTime();
+				
 				for(var evnt = 0; evnt < eventList.data.length; evnt++){
 					classes.push(eventList.data[evnt]);
 				}
@@ -72,6 +81,9 @@ var network = {
 						classMeta.push(evnts[evntInstance]);
 					}
 				}
+
+				cache.save("classes", {classes: classes, lastUpdated:lastUpdatedTime});
+				cache.save("classmeta", {metadata: classMeta, lastUpdated:lastUpdatedTime});
 
 				resolve({classes: classes, metadata: classMeta});
 			}).catch(err=>{
@@ -89,7 +101,7 @@ var network = {
 	 * @param {Date} startDate - Date to begin with
 	 * @return {Promise} When resolved, the promise returns the availability of Bookeo products (31 days)
 	 */
-	getEventAvailability: function(startDate){
+	getClassMetadata: function(startDate){
 		return this.request("GET", URL.get_availability, utils.generateDate(startDate));
 	},
 
@@ -99,7 +111,7 @@ var network = {
 	 * @function getAllClasses
 	 * @return {Promise} When resolved, the promise will return all Bookeo products
 	 */
- 	getAllEvents: function(){
+ 	getAllClasses: function(){
 		return this.request("GET", URL.get_classes);
 	},
 	
@@ -117,10 +129,10 @@ var network = {
 	/**
 	 * Pings the host for any updates
 	 * @function ping
-	 * @param target What you intend to update (ex. classes, class metadata, etc.)
+	 * @param data What you intend to update (ex. classes, class metadata, etc.)
 	 */
-	ping: function(target){
-		return this.request("POST", URL.check_update, undefined, JSON.stringify(target));
+	ping: function(data){
+		return this.request("POST", URL.check_update, undefined, JSON.stringify(data));
 	},
 
 	/**

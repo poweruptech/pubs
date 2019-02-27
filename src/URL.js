@@ -8,6 +8,7 @@ var URL = {
 	get_booking: "https://powerupnode.fwd.wf/get/booking",
 	get_availability: "https://powerupnode.fwd.wf/get/availability",
 	get_classes: "https://powerupnode.fwd.wf/get/classes",
+	get_class_meta: "https:powerupnode.fwd.wf/get/classmeta",
 	get_customers: "https://powerupnode.fwd.wf/get/customers",
 	test_url: "https://powerupnode.fwd.wf/test"
 };

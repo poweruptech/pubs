@@ -11,6 +11,12 @@ const restify = require('restify');
 const server = restify.createServer();
 
 const network = require('./dist/network');
+
+var data = {
+	classes: [],
+	classmeta: []
+};
+
 //network.updateCustomerList();
 
 server.use((req, res, next) => {
@@ -27,8 +33,11 @@ server.get('/auth/user', (req, res, next)=>{
 
 server.get('/get/customers', (req, res, next)=>{
 	network.request({req:req, res:res, next:next}, URL.get_customers);
-})
+});
+
 server.get('/get/classes', (req, res, next)=>{
+	//TODO: Save a copy into the cache
+	
 	network.request({req:req, res:res, next:next}, URL.get_products);
 });
 
@@ -50,6 +59,25 @@ server.post('/create/customer', (req, res, next)=>{
 		server.res.send(err);
         return server.next();
 	});
+});
+
+server.post('/ping', (req, res, next)=>{
+	req = JSON.parse(req);
+	
+	req.data.target;
+	
+	if(data[req.target] == undefined){
+		res.send(406, JSON.stringify({
+			status:"ERROR", 
+			reason: `Target "${req.target}" does not exist.`
+		}));
+		next();
+	}
+	
+	if(req.data.lastUpdated < data[req.target].lastUpdated)
+		res.send(406, JSON.stringify(data[req.target]));
+	else
+		res.send(200);
 });
 
 server.get('/get/availability', (req, res, next)=>{
