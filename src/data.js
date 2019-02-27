@@ -1,29 +1,3 @@
-import { network } from './network.js';
-
-var data = {
-	booking: {},
-	customer: {},
-	childParticipants: [],
-	processed: {
-		type: {
-			private: [],
-			course: []
-		}
-	},
-	
-	queue: {
-		eventProducts: [],
-		eventData: []
-	},
-	
-	unprocessed: {
-		eventProducts: [],
-		eventData: []
-	}
-
-};
-
-
 var cache = {
 	
 	/**
@@ -105,4 +79,4 @@ var cache = {
 	 
 };
 
-export { cache, data };
+export { cache};

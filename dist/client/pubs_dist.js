@@ -65,6 +65,7 @@
 		get_booking: "https://powerupnode.fwd.wf/get/booking",
 		get_availability: "https://powerupnode.fwd.wf/get/availability",
 		get_classes: "https://powerupnode.fwd.wf/get/classes",
+		get_class_meta: "https:powerupnode.fwd.wf/get/classmeta",
 		get_customers: "https://powerupnode.fwd.wf/get/customers",
 		test_url: "https://powerupnode.fwd.wf/test"
 	};
@@ -194,19 +195,27 @@
 				for(var i = 0; i < periods; i++){
 					let startDate = new Date();
 					startDate.setDate(startDate.getDate() + (31 * i));
-					dataToRetrieve.push(this.getEventAvailability(startDate));
+					dataToRetrieve.push(this.getClassMetadata(startDate));
 				}
 				if(!cache.exists("classes"))
-					dataToRetrieve.push(this.getAllEvents());
+					dataToRetrieve.push(this.getAllClasses());
 				else{
-					network.ping(['classes']).then(result=>{
-						classes = cache.access("classes");
+					network.ping({
+						target: ['classes'],
+						lastUpdated: classes.lastUpdated
+					}).then(result=>{
+						classes = JSON.parse(cache.access("classes"));
 					}).catch(err=>{
-						dataToRetrieve.push(this.getAllEvents());
+						if(err.status == "OK")
+							dataToRetrieve.push(this.getAllClasses());
+						else
+							throw new Error(err.reason);
 					});
 				}
 				Promise.all(dataToRetrieve).then(completed=>{
 					var eventList = completed.pop();
+					var lastUpdatedTime = new Date();
+					lastUpdatedTime = lastUpdatedTime.getTime();
 					for(var evnt = 0; evnt < eventList.data.length; evnt++){
 						classes.push(eventList.data[evnt]);
 					}
@@ -216,23 +225,25 @@
 							classMeta.push(evnts[evntInstance]);
 						}
 					}
+					cache.save("classes", {classes: classes, lastUpdated:lastUpdatedTime});
+					cache.save("classmeta", {metadata: classMeta, lastUpdated:lastUpdatedTime});
 					resolve({classes: classes, metadata: classMeta});
 				}).catch(err=>{
 					reject(err);
 				});
 			});
 		},
-		getEventAvailability: function(startDate){
+		getClassMetadata: function(startDate){
 			return this.request("GET", URL.get_availability, utils.generateDate(startDate));
 		},
-	 	getAllEvents: function(){
+	 	getAllClasses: function(){
 			return this.request("GET", URL.get_classes);
 		},
 		newCustomer: function(customer){
 			return this.request("POST", URL.create_customer, undefined, customer.data);
 		},
-		ping: function(target){
-			return this.request("POST", URL.check_update, undefined, JSON.stringify(target));
+		ping: function(data$$1){
+			return this.request("POST", URL.check_update, undefined, JSON.stringify(data$$1));
 		},
 		request: function(method, url, query, data$$1){
 			return new Promise((resolve, reject) => {

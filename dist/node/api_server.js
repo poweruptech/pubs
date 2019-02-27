@@ -80,7 +80,7 @@ server.post('/ping', (req, res, next)=>{
 		res.send(200);
 });
 
-server.get('/get/availability', (req, res, next)=>{
+server.get('/get/classmeta', (req, res, next)=>{
 	network.request({req:req, res:res, next:next}, URL.get_availability_slots, req.query);
 });
 
