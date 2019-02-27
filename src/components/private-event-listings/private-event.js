@@ -1,14 +1,14 @@
-import { network } from '../../network'
-import { utils } from '../../utils'
+import { network } from '../../network';
+import { utils } from '../../utils';
+
+/*global Vue*/
 
 network.fetch(3).then(resolve=>{
     utils.processListings(resolve, {
-        include: ['private']
+        type: 'private'
     });   
 }).catch(err=>{
-
-    powerup.promptChoice("An error has occurred, would you like to retry?");
-    //retry, or just give up...
+    console.log(err);
 });
 
 var privateEvent = Vue.component('private-event', {

@@ -1,12 +1,11 @@
-/*global localStorage*/
-
-import { data as p_data, cache } from './data.js';
+import { cache } from './data.js';
 import { URL } from './URL.js';
 import { utils } from './utils.js';
 
 /**
  * @namespace Network
  */
+ 
 var network = {
 
 	/**
@@ -23,42 +22,58 @@ var network = {
 	/**
 	 * fetches all user created events and currently available events within
 	 * the periods specified. A period is defined as 31 days. Periods are
-	 * measured from the current date. Data is automatically stored in
-	 * Powerup.data.unprocessed
+	 * measured from the current date. Data is stored in localstorage. "Class products"
+	 * are stored in "classes", and class metadata in "classMeta".
 	 * @memberof Network
 	 * @param  {Number} periods - Num of periods to fetch data
 	 * @return {Promise}         
 	 */
 	fetch: function(periods){
-		if(periods == 0){
-			return;
-		}
+		if(periods == 0)
+			throw Error("Period not defined");
+			
 		return new Promise((resolve, reject)=>{
-			let dataToRetrieve = [];
+			var dataToRetrieve = [];
+			
+			var classes = [], classMeta = [];
 
 			for(var i = 0; i < periods; i++){
 				let startDate = new Date();
 				startDate.setDate(startDate.getDate() + (31 * i));
 				dataToRetrieve.push(this.getEventAvailability(startDate));
 			}
-
-			dataToRetrieve.push(this.getAllEvents());
+			
+			/**
+			 * Checks if class products are already stored on the browser. If
+			 * they are, the server is polled for updates. If there aren't, the local
+			 * version is used. If there are updates, they will be pulled from the 
+			 * server and stored locally.
+			 */
+			if(!cache.exists("classes"))
+				dataToRetrieve.push(this.getAllEvents());
+			else{
+				network.ping(['classes']).then(result=>{
+					classes = cache.access("classes");
+				}).catch(err=>{
+					dataToRetrieve.push(this.getAllEvents());
+				});
+			}
 
 			Promise.all(dataToRetrieve).then(completed=>{
-				let eventList = completed.pop();
+				var eventList = completed.pop();
 
 				for(var evnt = 0; evnt < eventList.data.length; evnt++){
-					p_data.unprocessed.eventProducts.push(eventList.data[evnt]);
+					classes.push(eventList.data[evnt]);
 				}
 
 				for(var dataBlock = 0; dataBlock < completed.length; dataBlock++){
 					for(var evntInstance = 0; evntInstance < completed[dataBlock].data.length; evntInstance++){
 						let evnts = completed[dataBlock].data;
-						p_data.unprocessed.eventData.push(evnts[evntInstance]);
+						classMeta.push(evnts[evntInstance]);
 					}
 				}
 
-				resolve(p_data.unprocessed.eventData);
+				resolve({classes: classes, metadata: classMeta});
 			}).catch(err=>{
 				reject(err);
 			});
@@ -102,15 +117,10 @@ var network = {
 	/**
 	 * Pings the host for any updates
 	 * @function ping
+	 * @param target What you intend to update (ex. classes, class metadata, etc.)
 	 */
 	ping: function(target){
-		this.request("GET", URL.check_update, undefined, localStorage.getItem(cache.$key)).then(res=>{
-			if(res.reply){
-				
-			}else{
-				
-			}
-		});
+		return this.request("POST", URL.check_update, undefined, JSON.stringify(target));
 	},
 
 	/**

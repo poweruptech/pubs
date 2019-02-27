@@ -7,11 +7,12 @@ if(cache.upToDate()){
         utils.processListings(result, {
             onlyInclude: "Minecraft Party",
             searchInLocation: "title"
-        })    
-    })
+        });
+        
+    });
 }
 else{
     cache.update().then(result=>{
-        utils.processListings(result)
-    })
+        utils.processListings(result);
+    });
 }

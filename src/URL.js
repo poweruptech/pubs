@@ -12,4 +12,6 @@ var URL = {
 	test_url: "https://powerupnode.fwd.wf/test"
 };
 
+Object.freeze(URL);
+
 export { URL };

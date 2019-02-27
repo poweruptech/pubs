@@ -29,27 +29,27 @@ var network = {
     /**
      * @memberof Network
      * @function authUser
-     * @param {String} userrname
+     * @param {String} username
      * @param {String} password
      * @param {Function} next
      */
-    authUser: function(username, password, next){
+    authUser: function(server, username, password){
         for(let customer of this.data.customers){
             if(customer.emailAddress == username){
                 bookeo.get(`customers/{customer.id}/auth`, {
 					params: password
 				}).then(response =>{
                     if(response.status == 200){
-                        res.send(customer);
-                        return next();
+                        server.res.send(customer);
+                        server.next();
                     }
                     else{
-                        res.send(403);
-                        return next();
+                        server.res.send(403);
+                        server.next();
                     }
 				}).catch(err=>{
-                    res.send(403);
-                    return next();
+                    server.res.send(403);
+                    server.next();
 				});
             }
         }
@@ -121,6 +121,6 @@ var network = {
            console.log(err.response.data);
         });
     }
-}
+};
 
 module.exports = network;

@@ -1,10 +1,10 @@
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('data')) :
-	typeof define === 'function' && define.amd ? define(['exports', 'data'], factory) :
-	(global = global || self, factory(global.Powerup = {}, global.data));
-}(this, function (exports, data) { 'use strict';
+	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	typeof define === 'function' && define.amd ? define(['exports'], factory) :
+	(global = global || self, factory(global.Powerup = {}));
+}(this, function (exports) { 'use strict';
 
-	var data$1 = {
+	var data = {
 		booking: {},
 		customer: {},
 		childParticipants: [],
@@ -25,26 +25,33 @@
 	};
 	var cache = {
 		access: function(key){
-			if(window.localStorage.getItem(key)){
-				console.error(`No cached copy of ${ key } available`);
-				throw new Error("");
-			}else{
-				var data$$1 = window.localStorage.getItem(key);
-				if(3600000 < (new Date().getTime() - data$$1.dateSaved))
+			if(window.localStorage.getItem(key) == null)
+				throw new Error(`No cached copy is saved in "${ key }"`);
+			var data = window.localStorage.getItem(key);
+			if(data.dateSaved && data.type=="listings"){
+				if(3600000 < (new Date().getTime() - data.dateSaved))
 					console.log("Cached copy is out of date, consider updating it");
-				return data$$1;
 			}
+			return JSON.parse(data);
 		},
 		clearAll: function(){
 			window.localStorage.clear();
 		},
-		save: function(key, data$$1){
-			data$$1.dateSaved = new Date().getTime();
-			window.localStorage.setItem(key, JSON.stringify(data$$1));
+		exists: function(key){
+			if(window.localStorage.getItem(key) == null)
+				return false;
+			return true;
+		},
+		save: function(key, data, type){
+			if(type == "listing")
+				data.dateSaved = new Date().getTime();
+			window.localStorage.setItem(key, JSON.stringify(data));
 		},
 		update: function(key, newData){
-			if(window.localStorage.getItem(key) !== null);else
-				throw Error(`Cannot update ${ key } as it does not exist`);
+			if(window.localStorage.getItem(key) !== null){
+				 var dataToUpdate = window.localStorage.getItem(key);
+			}else
+				throw Error(`Cannot update "${ key }"" as it does not exist`);
 		}
 	};
 
@@ -61,6 +68,7 @@
 		get_customers: "https://powerupnode.fwd.wf/get/customers",
 		test_url: "https://powerupnode.fwd.wf/test"
 	};
+	Object.freeze(URL);
 
 	var utils = {
 		formatDate: function(date, format){
@@ -110,23 +118,22 @@
 			var date = dateStr.split('-');
 			return new Date(date[0], date[1] - 1, date[2]);
 		},
-		processListings: function(data$$1, options){
-			let eventProducts = data.data.unprocessed.eventProducts;
-			let eventData = data.data.unprocessed.eventData;
-			let processed = [];
-			for(var data$$1 = 0; data$$1 < eventData.length; data$$1++){
-				for(var product = 0; product < eventProducts.length; product++){
-					if(eventProducts[product].productId === eventData[data$$1].productId){
-						processed.push(Object.assign({}, eventProducts[product], eventData[data$$1]));
+		process: function(data, options){
+			if(!(data.classes && data.classMeta))
+				throw Error("Insufficient data provided for processing class listings");
+			var classes = data.classes;
+			var classMeta = data.classMeta;
+			var completeClasses = [];
+			for(var data = 0; data < classMeta.length; data++){
+				for(var product = 0; product < classes.length; product++){
+					if(classes[product].productId === classMeta[data].productId){
+						completeClasses.push(Object.assign({}, classes[product], classMeta[data]));
 						break;
 					}
 				}
 			}
-			if(options.include.includes('courses'));
-			if(options.include.includes('private'));
-			if(options.include.includes('all'));
-			for(var listing = 0; listing < processed.length; listing++){
-				var tmpListing = processed[listing];
+			for(var listing = 0; listing < completeClasses.length; listing++){
+				var tmpListing = completeClasses[listing];
 				if(!tmpListing.apiBookingsAllowed)
 					continue;
 				tmpListing.price = `$${tmpListing.defaultRates[0].price.amount}`;
@@ -162,14 +169,12 @@
 					delete tmpListing.choiceOptions;
 				}
 			}
-			for(var listing = 0; listing < processed.length; listing++){
-				if(processed[listing].apiBookingsAllowed == true){
-					processed[listing].key = listing;
-					data.data.processed.push(processed[listing]);
+			for(var listing = 0; listing < completeClasses.length; listing++){
+				if(completeClasses[listing].apiBookingsAllowed == true){
+					completeClasses[listing].key = listing;
 				}
 			}
-			app.messages.eventMessage = '';
-			app.eventsLoaded = true;
+			return completeClasses;
 		},
 		search: function(dataset, term, type){
 			var len = dataset.length;
@@ -181,29 +186,37 @@
 			return this.request("POST", URL.auth_cust, undefined, {username: uname, password: pword});
 		},
 		fetch: function(periods){
-			if(periods == 0){
-				return;
-			}
+			if(periods == 0)
+				throw Error("Period not defined");
 			return new Promise((resolve, reject)=>{
-				let dataToRetrieve = [];
+				var dataToRetrieve = [];
+				var classes = [], classMeta = [];
 				for(var i = 0; i < periods; i++){
 					let startDate = new Date();
 					startDate.setDate(startDate.getDate() + (31 * i));
 					dataToRetrieve.push(this.getEventAvailability(startDate));
 				}
-				dataToRetrieve.push(this.getAllEvents());
+				if(!cache.exists("classes"))
+					dataToRetrieve.push(this.getAllEvents());
+				else{
+					network.ping(['classes']).then(result=>{
+						classes = cache.access("classes");
+					}).catch(err=>{
+						dataToRetrieve.push(this.getAllEvents());
+					});
+				}
 				Promise.all(dataToRetrieve).then(completed=>{
-					let eventList = completed.pop();
+					var eventList = completed.pop();
 					for(var evnt = 0; evnt < eventList.data.length; evnt++){
-						data$1.unprocessed.eventProducts.push(eventList.data[evnt]);
+						classes.push(eventList.data[evnt]);
 					}
 					for(var dataBlock = 0; dataBlock < completed.length; dataBlock++){
 						for(var evntInstance = 0; evntInstance < completed[dataBlock].data.length; evntInstance++){
 							let evnts = completed[dataBlock].data;
-							data$1.unprocessed.eventData.push(evnts[evntInstance]);
+							classMeta.push(evnts[evntInstance]);
 						}
 					}
-					resolve(data$1.unprocessed.eventData);
+					resolve({classes: classes, metadata: classMeta});
 				}).catch(err=>{
 					reject(err);
 				});
@@ -218,10 +231,8 @@
 		newCustomer: function(customer){
 			return this.request("POST", URL.create_customer, undefined, customer.data);
 		},
-		ping: function(){
-			this.request("GET", URL.check_update, undefined, localStorage.getItem(cache.$key)).then(res=>{
-				if(res.reply);
-			});
+		ping: function(target){
+			return this.request("POST", URL.check_update, undefined, JSON.stringify(target));
 		},
 		request: function(method, url, query, data$$1){
 			return new Promise((resolve, reject) => {
@@ -282,11 +293,11 @@
 	    }
 	};
 
-	function Booking(data$$1){
+	function Booking(data){
 		this.data = {};
 		this.hold = new Hold();
-		if(data$$1 !== undefined)
-			this.data = data$$1;
+		if(data !== undefined)
+			this.data = data;
 	}
 	Booking.prototype = {
 		send: function(){
@@ -300,10 +311,10 @@
 			}
 			network.request("POST", URL.create_booking, undefined, JSON.stringify(this.data));
 		},
-		setData: function(data$$1){this.data = data$$1;}
+		setData: function(data){this.data = data;}
 	};
 
-	function Customer(data$$1){
+	function Customer(data){
 		this.auth = {
 			username: '',
 			password: ''
@@ -321,12 +332,12 @@
 			errors: [],
 			fail: true
 		};
-		if(data$$1 !== undefined)
-			Object.assign(this.data, data$$1);
+		if(data !== undefined)
+			Object.assign(this.data, data);
 	}
 	Customer.prototype = {
-		assign: function(data$$1){
-			Object.assign(this.data, data$$1);
+		assign: function(data){
+			Object.assign(this.data, data);
 		},
 		validate: function(){
 			this.status.errors = [];
@@ -388,7 +399,7 @@
 	};
 
 	exports.factory = factory;
-	exports.data = data$1;
+	exports.data = data;
 	exports.URL = URL;
 	exports.network = network;
 	exports.utils = utils;

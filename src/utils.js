@@ -1,8 +1,8 @@
 /**
  * @namespace Utils
  */
-
- import { data as storage } from 'data'
+ 
+ /*global Powerup*/
 
 var utils = {
 	/**
@@ -105,38 +105,25 @@ var utils = {
 	 * @return { Array } Processed listings
 	 */
 	process: function(data, options){
-		//let eventProducts = [];
-		//let eventData = [];
-		//let processed = [];
-
-		let eventProducts = storage.unprocessed.eventProducts; //all events created by owner
-		let eventData = storage.unprocessed.eventData; //actual events to be booked
-		let processed = []; //processed listings
-
-		for(var data = 0; data < eventData.length; data++){
-			for(var product = 0; product < eventProducts.length; product++){
-				if(eventProducts[product].productId === eventData[data].productId){
+		if(!(data.classes && data.classMeta))
+			throw Error("Insufficient data provided for processing class listings");
+		
+		var classes = data.classes; //class listings to process
+		var classMeta = data.classMeta; //class metadata to merge with the classes
+		var completeClasses = []; //processed class listings
+		
+		for(var data = 0; data < classMeta.length; data++){
+			for(var product = 0; product < classes.length; product++){
+				if(classes[product].productId === classMeta[data].productId){
 					//if the two are referring to the same event, they are merged and pushed onto the processed array
-					processed.push(Object.assign({}, eventProducts[product], eventData[data]));
+					completeClasses.push(Object.assign({}, classes[product], classMeta[data]));
 					break;
 				}
 			}
 		}
-
-		if(options.include.includes('courses')){
-
-		}
-
-		if(options.include.includes('private')){
-
-		}
-
-		if(options.include.includes('all')){
-
-		}
-
-		for(var listing = 0; listing < processed.length; listing++){
-			var tmpListing = processed[listing];
+		
+		for(var listing = 0; listing < completeClasses.length; listing++){
+			var tmpListing = completeClasses[listing];
 			
 			if(!tmpListing.apiBookingsAllowed)
 				continue;
@@ -189,12 +176,14 @@ var utils = {
 		}
 
 		//when processing is done, the listings are pushed onto the Powerup object
-		for(var listing = 0; listing < processed.length; listing++){
-			if(processed[listing].apiBookingsAllowed == true){
-				processed[listing].key = listing;
-				storage.processed.push(processed[listing]);
+		for(var listing = 0; listing < completeClasses.length; listing++){
+			if(completeClasses[listing].apiBookingsAllowed == true){
+				completeClasses[listing].key = listing;
+				//storage.completeClasses.push(completeClasses[listing]);
 			}
 		}
+		
+		return completeClasses;
 	},
 
 /**
