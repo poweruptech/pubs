@@ -1,28 +1,9 @@
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(global = global || self, factory(global.Powerup = {}));
-}(this, function (exports) { 'use strict';
+	(factory((global.Powerup = {})));
+}(this, (function (exports) { 'use strict';
 
-	var data = {
-		booking: {},
-		customer: {},
-		childParticipants: [],
-		processed: {
-			type: {
-				private: [],
-				course: []
-			}
-		},
-		queue: {
-			eventProducts: [],
-			eventData: []
-		},
-		unprocessed: {
-			eventProducts: [],
-			eventData: []
-		}
-	};
 	var cache = {
 		access: function(key){
 			if(window.localStorage.getItem(key) == null)
@@ -242,10 +223,10 @@
 		newCustomer: function(customer){
 			return this.request("POST", URL.create_customer, undefined, customer.data);
 		},
-		ping: function(data$$1){
-			return this.request("POST", URL.check_update, undefined, JSON.stringify(data$$1));
+		ping: function(data){
+			return this.request("POST", URL.check_update, undefined, JSON.stringify(data));
 		},
-		request: function(method, url, query, data$$1){
+		request: function(method, url, query, data){
 			return new Promise((resolve, reject) => {
 				let xmlrequest = new XMLHttpRequest();
 				if(query !== undefined)
@@ -262,8 +243,8 @@
 				xmlrequest.onerror = function(){
 					reject("Unable to retrieve data");
 				};
-				if(data$$1 !== undefined)
-					xmlrequest.send(data$$1);
+				if(data !== undefined)
+					xmlrequest.send(data);
 				else
 					xmlrequest.send();
 			});
@@ -410,11 +391,10 @@
 	};
 
 	exports.factory = factory;
-	exports.data = data;
 	exports.URL = URL;
 	exports.network = network;
 	exports.utils = utils;
 
 	Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
