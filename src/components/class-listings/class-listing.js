@@ -12,10 +12,10 @@ try{
     network.fetch(3).then(result=>{
         classes = utils.process(result);
         
-        if(app == undefined)
+        if(window.app == undefined)
             console.error("Expected Vue app to be stored in a var named 'app'");
             
-        app.classes = classes; //Assumes Vue app will be named app.
+        window.app.classes = classes; //Assumes Vue app will be named app.
     });
 }
 
