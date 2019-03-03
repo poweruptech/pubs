@@ -27,14 +27,17 @@ server.use(restify.plugins.bodyParser());
 
 //NOTE: network.request() automatically calls next()
 
+//user auth, still a WIP.
 server.get('/auth/user', (req, res, next)=>{
 	network.authUser(req.query.username, req.query.password, next);
 });
 
+//gets customer list, a copy should be saved, but doesn't happen yet.
 server.get('/get/customers', (req, res, next)=>{
 	network.request({req:req, res:res, next:next}, URL.get_customers);
 });
 
+//sends class list. saves a copy as well!
 server.get('/get/classes', (req, res, next)=>{
 	var request = network.getApiService();
 	
@@ -51,14 +54,17 @@ server.get('/get/classes', (req, res, next)=>{
 	});
 });
 
+//used for sales, WIP
 server.get('/validate/promo', (req, res, next)=>{
 	network.request({req:req, res:res, next:next}, URL.check_validity);
 });
 
+//used for creating bookings, still a WIP??
 server.get('/create/booking',(req,res,next)=>{
 	network.request({req:req, res:res,next:next}, URL.create_booking, req.data);
 });
 
+//customer creation is a WIP.
 server.post('/create/customer', (req, res, next)=>{
 	console.log(req.body);
 	network.createCustomer(req.body).then(response=>{
@@ -71,8 +77,10 @@ server.post('/create/customer', (req, res, next)=>{
 	});
 });
 
+
+//update checking!!
 server.post('/ping', (req, res, next)=>{
-	req = JSON.parse(req);
+	req = JSON.parse(req.data);
 	
 	if(cache[req.target] == undefined){
 		res.send(406, JSON.stringify({
@@ -90,6 +98,7 @@ server.post('/ping', (req, res, next)=>{
 	next();
 });
 
+//sends class metadata, saves a copy as well!
 server.get('/get/classmeta', (req, res, next)=>{
 	var request = network.getApiService();
 	

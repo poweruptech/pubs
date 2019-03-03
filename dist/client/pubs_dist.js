@@ -257,8 +257,8 @@
 		newCustomer: function(customer){
 			return this.request("POST", URL.create_customer, undefined, customer.data);
 		},
-		ping: function(data){
-			return this.request("POST", URL.check_update, undefined, JSON.stringify(data));
+		ping: function(target){
+			return this.request("POST", URL.check_update, undefined, JSON.stringify(target));
 		},
 		request: function(method, url, query, data){
 			return new Promise((resolve, reject) => {

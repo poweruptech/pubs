@@ -8,14 +8,22 @@ import { utils } from '../../utils';
 try{//checking whether classes are saved
     var classes = cache.access("classes");
     
-     network.ping(classes).then(success=>{
+    //target to ping on server, and target's last update.
+    var target = {
+        target: "classes",
+        lastUpdated: classes.lastUpdated
+    };
+    
+     network.ping(target).then(success=>{
         //you've been given the A-Okay by the server!
          
         window.app.classes = classes;
        }).catch(fail=>{
         //Server deemed your data out of date :(
-   
-        //download new data using network.update() or something.
+        
+        //don't worry, server sends the newest data if it thinks it's out of date
+        cache.save("classes", JSON.parse(fail.data));
+        
        });
 }catch(err){//classes have never been saved to device
     console.log(err);

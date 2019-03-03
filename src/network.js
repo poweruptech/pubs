@@ -131,8 +131,8 @@ var network = {
 	 * @function ping
 	 * @param data What you intend to update (ex. classes, class metadata, etc.)
 	 */
-	ping: function(data){
-		return this.request("POST", URL.check_update, undefined, JSON.stringify(data));
+	ping: function(target){
+		return this.request("POST", URL.check_update, undefined, JSON.stringify(target));
 	},
 
 	/**
