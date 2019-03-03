@@ -84,6 +84,14 @@ var network = {
             data: customer
         });
     },
+    
+    /**
+     * Basically returns the axios object
+     * Used in cases when network.request isn't enough
+     */
+    getApiService: function(){
+      return bookeo;  
+    },
 
     /**
      * @memberof Network

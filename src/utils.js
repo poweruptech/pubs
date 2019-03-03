@@ -95,8 +95,7 @@ var utils = {
 	 * Options Schema
 	 * {
 	 * 	type (String): Type of class (Defaults to 'fixed')
-	 * 	onlyInclude (String): Classes which have the given title will be the only ones included
-	 * 	exclude (String): Excludes classes with the given title
+	 * 	include (Object): only include given objects
 	 * 	locationToSearch (String): Where to search for string at (ie. description, title, anywhere). Defaults to anywhere
 	 * }
 	 * 
@@ -105,7 +104,7 @@ var utils = {
 	 * @return { Array } Processed listings
 	 */
 	process: function(data, options){
-		if(!(data.classes && data.classMeta))
+		if(data.classes == undefined || data.classMeta == undefined)
 			throw Error("Insufficient data provided for processing class listings");
 		
 		var classes = data.classes; //class listings to process
@@ -141,6 +140,18 @@ var utils = {
 				let endDate = new Date(tmpListing.endTime);
 				tmpListing.startDate = Powerup.utils.formatDate(strDate, 'md');
 				tmpListing.endDate = Powerup.utils.formatDate(endDate, 'md');
+			}
+			
+			if(options.include !== undefined){
+				for(var include in options.include.terms){
+					
+				}
+			}
+			
+			if(options.exclude !== undefined){
+				for(var exclude in options.exclude.terms){
+					
+				}
 			}
 			
 			
@@ -183,23 +194,42 @@ var utils = {
 			}
 		}
 		
+		if(options != undefined)
+			return this.search(completeClasses, options);
+		
 		return completeClasses;
 	},
+	
+	/**
+	 * @func search
+	 * @param { Array } arr Array of class listings
+	 * @param { Object } options Criteria used when searching within class listings
+	 * @return { Array } Results of the search
+	 */
+	search: function(arr, options){
+		var results = [];
+		
+		/** 
+		 * TODO: Add exclusion search; basically streamline include and exclude search.
+		 * Making them both possible within a single for loop block would be very nice.
+		 */
+		 
+		 if(options.include && options.exclude)
+			throw Error("Cannot perform an exclusion and inclusion search at the same time"); 
+			//Exclude and Include search not desired to be run (atm...) for reasons.
+		 
+		//TODO: Make searching for terms case-insensitive as well as locations.
 
-/**
- * @function Search
- * @param {JSON} dataset JSON object where term will be searched in (most likely Bookeo dataset)
- * @param {String} term Term to search for in data set
- * @param {String} type Where to search term in (ie. description, title, all)
- * @returns {Array} Array will contain all instances where the term showed up. If none are found, array will be empty
- */
-	search: function(dataset, term, type){
-		var len = dataset.length;
-
-		switch(type){
-			case "description":
-			case "":
+		for(var listing of arr){
+			for(var term = 0; term < options.include.terms.length; term++){
+				for(var at = 0; at < options.include.at.length; at++){
+					if(listing[options.include.at[at]].includes(options.include.terms[term]))
+						results.push(listing);
+				}
+			}
 		}
+		
+		return results;
 	}
 };
 

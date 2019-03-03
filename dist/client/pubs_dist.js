@@ -4,35 +4,19 @@
 	(global = global || self, factory(global.Powerup = {}));
 }(this, function (exports) { 'use strict';
 
-	var data = {
-		booking: {},
-		customer: {},
-		childParticipants: [],
-		processed: {
-			type: {
-				private: [],
-				course: []
-			}
-		},
-		queue: {
-			eventProducts: [],
-			eventData: []
-		},
-		unprocessed: {
-			eventProducts: [],
-			eventData: []
-		}
-	};
 	var cache = {
 		access: function(key){
 			if(window.localStorage.getItem(key) == null)
-				throw new Error(`No cached copy is saved in "${ key }"`);
+				throw new Error(`Item "${ key }" does not exist`);
 			var data = window.localStorage.getItem(key);
 			if(data.dateSaved && data.type=="listings"){
 				if(3600000 < (new Date().getTime() - data.dateSaved))
 					console.log("Cached copy is out of date, consider updating it");
 			}
 			return JSON.parse(data);
+		},
+		clear: function(key){
+			window.localStorage.removeItem(key);
 		},
 		clearAll: function(){
 			window.localStorage.clear();
@@ -63,7 +47,7 @@
 		create_hold: "https://powerupnode.fwd.wf/create/hold",
 		delete_hold: "https://powerupnode.fwd.wf/delete/hold",
 		get_booking: "https://powerupnode.fwd.wf/get/booking",
-		get_availability: "https://powerupnode.fwd.wf/get/availability",
+		get_availability: "https://powerupnode.fwd.wf/get/classmeta",
 		get_classes: "https://powerupnode.fwd.wf/get/classes",
 		get_class_meta: "https:powerupnode.fwd.wf/get/classmeta",
 		get_customers: "https://powerupnode.fwd.wf/get/customers",
@@ -120,7 +104,7 @@
 			return new Date(date[0], date[1] - 1, date[2]);
 		},
 		process: function(data, options){
-			if(!(data.classes && data.classMeta))
+			if(data.classes == undefined || data.classMeta == undefined)
 				throw Error("Insufficient data provided for processing class listings");
 			var classes = data.classes;
 			var classMeta = data.classMeta;
@@ -149,6 +133,14 @@
 					tmpListing.startDate = Powerup.utils.formatDate(strDate, 'md');
 					tmpListing.endDate = Powerup.utils.formatDate(endDate, 'md');
 				}
+				if(options.include !== undefined){
+					for(var include in options.include.terms){
+					}
+				}
+				if(options.exclude !== undefined){
+					for(var exclude in options.exclude.terms){
+					}
+				}
 				tmpListing.options = {
 					text: [],
 					choice: []
@@ -175,10 +167,26 @@
 					completeClasses[listing].key = listing;
 				}
 			}
+			if(options != undefined)
+				return this.search(completeClasses, options);
 			return completeClasses;
 		},
-		search: function(dataset, term, type){
-			var len = dataset.length;
+		search: function(arr, options){
+			var results = [];
+			if(options.include != undefined)
+				;
+			if(options.exclude != undefined)
+				;
+			for(var listing of arr){
+				for(var term = 0; term < options.include.terms.length; term++){
+					for(var at = 0; at < options.include.at.length; at++){
+						if(listing[options.include.at[at]].includes(options.include.terms[term])){
+							results.push(listing);
+						}
+					}
+				}
+			}
+			return results;
 		}
 	};
 
@@ -242,10 +250,10 @@
 		newCustomer: function(customer){
 			return this.request("POST", URL.create_customer, undefined, customer.data);
 		},
-		ping: function(data$$1){
-			return this.request("POST", URL.check_update, undefined, JSON.stringify(data$$1));
+		ping: function(data){
+			return this.request("POST", URL.check_update, undefined, JSON.stringify(data));
 		},
-		request: function(method, url, query, data$$1){
+		request: function(method, url, query, data){
 			return new Promise((resolve, reject) => {
 				let xmlrequest = new XMLHttpRequest();
 				if(query !== undefined)
@@ -262,8 +270,8 @@
 				xmlrequest.onerror = function(){
 					reject("Unable to retrieve data");
 				};
-				if(data$$1 !== undefined)
-					xmlrequest.send(data$$1);
+				if(data !== undefined)
+					xmlrequest.send(data);
 				else
 					xmlrequest.send();
 			});
@@ -410,7 +418,7 @@
 	};
 
 	exports.factory = factory;
-	exports.data = data;
+	exports.cache = cache;
 	exports.URL = URL;
 	exports.network = network;
 	exports.utils = utils;

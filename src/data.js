@@ -9,7 +9,7 @@ var cache = {
 	 
 	access: function(key){
 		if(window.localStorage.getItem(key) == null)
-			throw new Error(`No cached copy is saved in "${ key }"`);
+			throw new Error(`Item "${ key }" does not exist`);
 			
 		var data = window.localStorage.getItem(key);
 			
@@ -19,6 +19,10 @@ var cache = {
 		}
 		
 		return JSON.parse(data);
+	},
+	
+	clear: function(key){
+		window.localStorage.removeItem(key);
 	},
 	
 	clearAll: function(){

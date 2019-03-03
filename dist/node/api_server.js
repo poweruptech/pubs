@@ -12,12 +12,10 @@ const server = restify.createServer();
 
 const network = require('./dist/network');
 
-var data = {
-	classes: [],
-	classmeta: []
+var cache = {
+	classes: {},
+	classmeta: {}
 };
-
-//network.updateCustomerList();
 
 server.use((req, res, next) => {
 	res.header("Access-Control-Allow-Origin", "*");
@@ -26,6 +24,8 @@ server.use((req, res, next) => {
 
 server.use(restify.plugins.queryParser());
 server.use(restify.plugins.bodyParser());
+
+//NOTE: network.request() automatically calls next()
 
 server.get('/auth/user', (req, res, next)=>{
 	network.authUser(req.query.username, req.query.password, next);
@@ -36,9 +36,19 @@ server.get('/get/customers', (req, res, next)=>{
 });
 
 server.get('/get/classes', (req, res, next)=>{
-	//TODO: Save a copy into the cache
+	var request = network.getApiService();
 	
-	network.request({req:req, res:res, next:next}, URL.get_products);
+	request.get(URL.get_products).then(response=>{
+		res.send(response.data);
+		
+		var updated = new Date();
+		updated = updated.getTime();
+
+		cache.classes.lastUpdated = updated;
+		cache.classes.data = response.data;
+		
+		next();
+	});
 });
 
 server.get('/validate/promo', (req, res, next)=>{
@@ -64,9 +74,7 @@ server.post('/create/customer', (req, res, next)=>{
 server.post('/ping', (req, res, next)=>{
 	req = JSON.parse(req);
 	
-	req.data.target;
-	
-	if(data[req.target] == undefined){
+	if(cache[req.target] == undefined){
 		res.send(406, JSON.stringify({
 			status:"ERROR", 
 			reason: `Target "${req.target}" does not exist.`
@@ -74,14 +82,34 @@ server.post('/ping', (req, res, next)=>{
 		next();
 	}
 	
-	if(req.data.lastUpdated < data[req.target].lastUpdated)
-		res.send(406, JSON.stringify(data[req.target]));
+	if(req.data.lastUpdated < cache[req.target].lastUpdated)
+		res.send(406, JSON.stringify(cache[req.target].data));
 	else
 		res.send(200);
+		
+	next();
 });
 
 server.get('/get/classmeta', (req, res, next)=>{
-	network.request({req:req, res:res, next:next}, URL.get_availability_slots, req.query);
+	var request = network.getApiService();
+	
+	request.get(URL.get_availability_slots, {
+		params: req.query
+	}).then(response=>{
+		res.send(response.data);
+		
+		var updated = new Date();
+		updated = updated.getTime();
+
+		cache.classmeta.lastUpdated = updated;
+		cache.classmeta.data = response.data;
+		
+		next();
+	}).catch(err=>{
+		console.log(err);
+		res.send(406, err);
+		next();
+	});
 });
 
 server.listen(process.env.PORT, process.env.IP, ()=>{
