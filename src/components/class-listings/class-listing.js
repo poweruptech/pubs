@@ -4,13 +4,27 @@ import { utils } from '../../utils';
 
 /*global Vue*/
 /*global app*/
-try{
+
+try{//checking whether classes are saved
     var classes = cache.access("classes");
-}catch(err){
+    
+     network.ping(classes).then(success=>{
+        //you've been given the A-Okay by the server!
+         
+        window.app.classes = classes;
+       }).catch(fail=>{
+        //Server deemed your data out of date :(
+   
+        //download new data using network.update() or something.
+       });
+}catch(err){//classes have never been saved to device
     console.log(err);
     
+    //downloads class list and saves to device. Also sets up Vue 
     network.fetch(3).then(result=>{
         classes = utils.process(result);
+        
+        cache.save("classes", classes); //save classes to device
         
         if(window.app == undefined)
             console.error("Expected Vue app to be stored in a var named 'app'");

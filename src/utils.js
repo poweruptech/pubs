@@ -142,21 +142,6 @@ var utils = {
 				tmpListing.endDate = Powerup.utils.formatDate(endDate, 'md');
 			}
 			
-			if(options.include !== undefined){
-				for(var include in options.include.terms){
-					
-				}
-			}
-			
-			if(options.exclude !== undefined){
-				for(var exclude in options.exclude.terms){
-					
-				}
-			}
-			
-			
-			//Might be able to defer this processing until it's actually needed
-			
 			//Available options for a listing (Text <input> or choice <radio>)
 			tmpListing.options = {
 				text: [],
@@ -207,28 +192,52 @@ var utils = {
 	 * @return { Array } Results of the search
 	 */
 	search: function(arr, options){
+		
+		if(options.type == undefined)
+			throw Error(`No search type has been indicated`);
+		if(options.type !== 'include' && options.type !== 'exclude')
+			throw Error(`Non-compatible search type ${options.type} found`);
+		if(options.terms.length == 0 || options.at.length == 0)
+			return [];
+
 		var results = [];
+		
+		for(let i = 0; i < options.terms.length; i++){
+			options.terms[i] = options.terms[i].toLowerCase();
+		}
+		for(let i = 0; i < options.at.length; i++){
+			options.at[i] = options.at[i].toLowerCase();
+		}
 		
 		/** 
 		 * TODO: Add exclusion search; basically streamline include and exclude search.
 		 * Making them both possible within a single for loop block would be very nice.
 		 */
 		 
-		 if(options.include && options.exclude)
-			throw Error("Cannot perform an exclusion and inclusion search at the same time"); 
-			//Exclude and Include search not desired to be run (atm...) for reasons.
-		 
-		//TODO: Make searching for terms case-insensitive as well as locations.
+		// if(options.include && options.exclude)
+		//	throw Error("Cannot perform an exclusion and inclusion search at the same time"); 
+			// Exclude/Include search shouldn't be run at the same time for reasons...
 
 		for(var listing of arr){
-			for(var term = 0; term < options.include.terms.length; term++){
-				for(var at = 0; at < options.include.at.length; at++){
-					if(listing[options.include.at[at]].includes(options.include.terms[term]))
-						results.push(listing);
+			for(var term = 0; term < options.terms.length; term++){
+				for(var at = 0; at < options.at.length; at++){
+					if(listing[options.at[at]] == undefined){
+						//on some occasions search term will not exist in a listing for whatever reason.
+						console.log(`option "${options.at[at]}" does not exist for listing`);
+						continue;
+					}
+						
+					if(listing[options.at[at]].toLowerCase().includes(options.terms[term])){
+						if(options.type == 'include')
+							results.push(listing);
+					}
 				}
 			}
 		}
 		
+		if(options.type == 'exclude')
+			return arr;
+
 		return results;
 	}
 };

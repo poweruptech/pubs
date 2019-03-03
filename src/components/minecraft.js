@@ -5,10 +5,9 @@ var classes;
 
 network.fetch(3).then(result=>{
     var options = {
-        include: {
-            at: 'title',
-            terms: ['minecraft', 'party']
-        }
+        type: 'include',
+        at: ['title'],
+        terms: ['minecraft party']
     };
     
     classes = utils.process(result, options);
