@@ -1,4 +1,4 @@
-import { network } from './network.js';
+import { request } from './network.js';
 import { URL } from './URL.js';
 import { Hold } from './hold';
 
@@ -35,7 +35,7 @@ Booking.prototype = {
 			if(this.data.customer == undefined || this.data.customerId == undefined)
 				throw new Error("A Customer or Customer ID must be specified");
 		}
-		network.request("POST", URL.create_booking, undefined, JSON.stringify(this.data));
+		request("POST", URL.create_booking, undefined, JSON.stringify(this.data));
 	},
 	/**
 	 * Sets data for the booking.

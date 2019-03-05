@@ -22,7 +22,10 @@
   },
   "homepage": "https://github.com/poweruptech/pubs#readme",
   "dependencies": {
+    "axios": "^0.18.0",
     "jest": "^23.5.0",
+    "restify": "^8.0.0",
+    "rollup": "^1.4.1",
     "rollup-plugin-cleanup": "^3.0.0"
   }
 }

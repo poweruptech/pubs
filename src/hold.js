@@ -1,4 +1,4 @@
-import { network } from './network.js';
+import { request } from './network.js';
 import { URL } from './URL.js';
 
 /**
@@ -27,7 +27,7 @@ Hold.prototype = {
             
         this.listing = listing;
         return new Promise((resolve, reject)=>{
-            network.request("POST", URL.create_hold, undefined, listing.data)
+            request("POST", URL.create_hold, undefined, listing.data)
             .then(complete=>{
                 Object.assign(this, complete);
                 resolve();
@@ -45,7 +45,7 @@ Hold.prototype = {
      */
     delete: function(){
         return new Promise((resolve, reject)=>{
-            network.request("DELETE", URL.delete_hold, undefined, this.id)
+            request("DELETE", URL.delete_hold, undefined, this.id)
             .then(complete=>{
                 resolve("Successfully deleted!");
             }).catch(err=>{

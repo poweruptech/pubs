@@ -1,8 +1,23 @@
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-	typeof define === 'function' && define.amd ? define(['exports'], factory) :
-	(global = global || self, factory(global.Powerup = {}));
-}(this, function (exports) { 'use strict';
+(function (factory) {
+	typeof define === 'function' && define.amd ? define(factory) :
+	factory();
+}(function () { 'use strict';
+
+	var URL = {
+		$base: "https://powerupnode.fwd.wf/",
+		auth_cust: "https://powerupnode.fwd.wf/auth/cust",
+		create_booking: "https://powerupnode.fwd.wf/create/booking",
+		create_customer: "https://powerupnode.fwd.wf/create/customer",
+		create_hold: "https://powerupnode.fwd.wf/create/hold",
+		delete_hold: "https://powerupnode.fwd.wf/delete/hold",
+		get_booking: "https://powerupnode.fwd.wf/get/booking",
+		get_availability: "https://powerupnode.fwd.wf/get/classmeta",
+		get_classes: "https://powerupnode.fwd.wf/get/classes",
+		get_class_meta: "https:powerupnode.fwd.wf/get/classmeta",
+		get_customers: "https://powerupnode.fwd.wf/get/customers",
+		test_url: "https://powerupnode.fwd.wf/test"
+	};
+	Object.freeze(URL);
 
 	function formatDate(date, format){
 		let day = date.getDate();
@@ -46,10 +61,6 @@
 			endTime: endDate.toISOString(),
 		};
 		return formatParameters(time);
-	}
-	function parseDate(dateStr){
-		var date = dateStr.split('-');
-		return new Date(date[0], date[1] - 1, date[2]);
 	}
 	 function process(_data, options){
 		if(_data.classes == undefined || _data.classMeta == undefined)
@@ -144,34 +155,6 @@
 		return results;
 	}
 
-	var utils = /*#__PURE__*/Object.freeze({
-		formatDate: formatDate,
-		formatParameters: formatParameters,
-		generateDate: generateDate,
-		parseDate: parseDate,
-		process: process,
-		search: search
-	});
-
-	var URL = {
-		$base: "https://powerupnode.fwd.wf/",
-		auth_cust: "https://powerupnode.fwd.wf/auth/cust",
-		create_booking: "https://powerupnode.fwd.wf/create/booking",
-		create_customer: "https://powerupnode.fwd.wf/create/customer",
-		create_hold: "https://powerupnode.fwd.wf/create/hold",
-		delete_hold: "https://powerupnode.fwd.wf/delete/hold",
-		get_booking: "https://powerupnode.fwd.wf/get/booking",
-		get_availability: "https://powerupnode.fwd.wf/get/classmeta",
-		get_classes: "https://powerupnode.fwd.wf/get/classes",
-		get_class_meta: "https:powerupnode.fwd.wf/get/classmeta",
-		get_customers: "https://powerupnode.fwd.wf/get/customers",
-		test_url: "https://powerupnode.fwd.wf/test"
-	};
-	Object.freeze(URL);
-
-	function auth(uname, pword){
-		return request("POST", URL.auth_cust, undefined, {username: uname, password: pword});
-	}
 	function fetch(periods){
 		if(periods == 0)
 			throw Error("Period not defined");
@@ -205,15 +188,6 @@
 	function getClassMetadata(startDate){
 		return request("GET", URL.get_availability, generateDate(startDate));
 	}
-	function getAllClasses(){
-		return request("GET", URL.get_classes);
-	}
-	function newCustomer(customer){
-		return request("POST", URL.create_customer, undefined, customer.data);
-	}
-	function ping(target){
-		return request("POST", URL.check_update, undefined, JSON.stringify(target));
-	}
 	function request(method, url, query, data){
 		return new Promise((resolve, reject) => {
 			let xmlrequest = new XMLHttpRequest();
@@ -238,161 +212,20 @@
 		});
 	}
 
-	var network = /*#__PURE__*/Object.freeze({
-		auth: auth,
-		fetch: fetch,
-		getClassMetadata: getClassMetadata,
-		getAllClasses: getAllClasses,
-		newCustomer: newCustomer,
-		ping: ping,
-		request: request
-	});
-
-	function Hold(listing){
-	    this.listing = listing;
-	}
-	Hold.prototype = {
-	    create: function(listing){
-	        if(this.listing !== undefined){
-	            if(this.listing.eventId !== listing.eventId)
-	                this.delete();
-	            else
-	                return Promise.reject(new Error("Hold already present"));
-	        }
-	        this.listing = listing;
-	        return new Promise((resolve, reject)=>{
-	            request("POST", URL.create_hold, undefined, listing.data)
-	            .then(complete=>{
-	                Object.assign(this, complete);
-	                resolve();
-	            }).catch(err=>{
-	                reject(err);
-	            });
-	        });
-	    },
-	    delete: function(){
-	        return new Promise((resolve, reject)=>{
-	            request("DELETE", URL.delete_hold, undefined, this.id)
-	            .then(complete=>{
-	                resolve("Successfully deleted!");
-	            }).catch(err=>{
-	                reject(err);
-	            });
-	        });
+	fetch(3).then(result=>{
+	    var options = {
+	        type: 'include',
+	        at: ['title'],
+	        terms: ['minecraft party']
+	    };
+	    var classes = process(result, options);
+	    var data = [{
+	        "minecraft parties": []
+	    }];
+	    for(var i = 0; i < classes.length; i++){
+	        data[0]["minecraft parties"].push(classes[i].startDate);
 	    }
-	};
-
-	function Booking(data){
-		this.data = {};
-		this.hold = new Hold();
-		if(data !== undefined)
-			this.data = data;
-	}
-	Booking.prototype = {
-		send: function(){
-			if(this.data == undefined)
-				throw new Error("There is no data to be sent");
-			else{
-				if(this.data.eventId == undefined)
-					throw new Error("An Event ID must be specified");
-				if(this.data.customer == undefined || this.data.customerId == undefined)
-					throw new Error("A Customer or Customer ID must be specified");
-			}
-			request("POST", URL.create_booking, undefined, JSON.stringify(this.data));
-		},
-		setData: function(data){this.data = data;}
-	};
-
-	function Customer(data){
-		this.auth = {
-			username: '',
-			password: ''
-		};
-		this.data = {
-			firstName: '',
-			lastName: '',
-			emailAddress: '',
-			phoneNumbers: [{
-				number: '',
-				type: ''
-			}]
-		};
-		this.status = {
-			errors: [],
-			fail: true
-		};
-		if(data !== undefined)
-			Object.assign(this.data, data);
-	}
-	Customer.prototype = {
-		assign: function(data){
-			Object.assign(this.data, data);
-		},
-		validate: function(){
-			this.status.errors = [];
-			let err = this.status.errors;
-			switch(0){
-				case this.data.firstName.length:
-					err.push("First Name is required");
-				case this.data.lastName.length:
-					err.push("Last Name is required");
-				case this.data.emailAddress.length:
-					err.push("Email Address is required");
-			}
-			if(!err.length)
-				this.status.fail = false;
-			else
-				this.status.fail = true;
-		}
-	};
-
-	function ChildParticipant(){
-		this.key = 0;
-		this.data = {
-			firstName: '',
-			lastName: '',
-			gender: 'unknown',
-			dateOfBirth: '',
-			customFields: []
-		};
-		this.status = {
-			errors: [],
-			fail: true
-		};
-		this.categoryIndex;
-		this.personId = 'PUNKNOWN';
-	}
-	ChildParticipant.prototype = {
-		validate: function(){
-			this.status.errors = [];
-			let err = this.status.errors;
-			switch(0){
-				case this.data.firstName.length:
-					err.push("First Name is required");
-				case this.data.lastName.length:
-					err.push("Last Name is required");
-				case this.data.dateOfBirth.length:
-					err.push("Date of Birth is required");
-			}
-			if(!err.length)
-				this.status.fail = false;
-			else
-				this.status.fail = true;
-		}
-	};
-
-	var factory = {
-		booking: Booking,
-		customer: Customer,
-		childParticipant: ChildParticipant
-	};
-
-	exports.cache = network;
-	exports.network = network;
-	exports.utils = utils;
-	exports.factory = factory;
-	exports.URL = URL;
-
-	Object.defineProperty(exports, '__esModule', { value: true });
+	    window.data = data;
+	});
 
 }));

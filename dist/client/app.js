@@ -4,11 +4,57 @@
  * fetches listings from Bookeo, processes them, and stores them locally as "listings".
  * Listings can be accessed by calling 'Powerup.cache.access("listings");'
  */
+ 
+try{//checking whether classes are saved
+    var classes = Powerup.cache.access("classes");
+    
+    //target to ping on server, and target's last update.
+    var target = {
+        target: "classes",
+        lastUpdated: classes.lastUpdated
+    };
+    
+     Powerup.network.ping(target).then(success=>{
+        //you've been given the A-Okay by the server!
+         
+        window.app.classes = classes;
+       }).catch(fail=>{
+        //Server deemed your data out of date :(
+        
+        /** 
+         * usually the server will send updated data in fail.data but if 
+         * fail.data doesn't exist, something else might have gone wrong
+         */
+        if(fail.data == undefined)
+        	console.log(fail);
+        
+        //don't worry, server sends the newest data if it thinks it's out of date
+        Powerup.cache.save("classes", JSON.parse(fail.data));
+       });
+       
+       app.messages.eventMessage = '';
+       app.eventsLoaded = true;
+}catch(err){//classes have never been saved to device
+    console.log(err);
+    
+    //downloads class list and saves to device. Also sets up Vue 
+    Powerup.network.fetch(3).then(result=>{
+        var classes = Powerup.utils.process(result);
+        
+        Powerup.cache.save("classes", classes); //save classes to device
+        
+        if(app == undefined)
+            console.error("Expected Vue app to be stored in a var named 'app'");
+            
+        app.classes = classes; //Assumes Vue app will be named app.
+    }).catch(err=>{
+    	app.message.eventMessage = `${err}. Trying again...`;
+    });
+}
+
+
 Powerup.network.fetch(1).then(result=>{
 	Powerup.cache.save("listings" , Powerup.utils.process(result));
-	
-	app.messages.eventMessage = '';
-	app.eventsLoaded = true;
 	
 }).catch(err=>{
 	app.messages.eventMessage = `${ err }. Trying again...`;
@@ -79,7 +125,7 @@ var app = new Vue({
 		currentListing: {},
 		customer: new Powerup.factory.customer(),
 		loadingmessage: 'Loading...',
-		processed_listings: Powerup.data.processed,
+		processed_listings: [],
 		pickupAuths: [],
 		
 		messages: {

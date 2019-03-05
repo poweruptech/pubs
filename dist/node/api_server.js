@@ -1,4 +1,4 @@
-//TODO: Add documentation, add more functionality, and maybe add some type of caching for listings.
+//TODO: Add documentation, add more functionality
 const URL = {
 	check_validity: '',
 	get_customers: 'customers', 
@@ -27,6 +27,11 @@ server.use(restify.plugins.bodyParser());
 
 //NOTE: network.request() automatically calls next()
 
+server.get('/', (req, res, next)=>{
+	res.send("hello world");
+	next();
+});
+
 //user auth, still a WIP.
 server.get('/auth/user', (req, res, next)=>{
 	network.authUser(req.query.username, req.query.password, next);
@@ -40,18 +45,38 @@ server.get('/get/customers', (req, res, next)=>{
 //sends class list. saves a copy as well!
 server.get('/get/classes', (req, res, next)=>{
 	var request = network.getApiService();
+	var lastUpdate;
+	var currentDay = new Date();
+	currentDay = currentDay.getDay();
 	
-	request.get(URL.get_products).then(response=>{
-		res.send(response.data);
+	if(cache.classes.lastUpdated !== undefined){
+		lastUpdate = new Date(cache.classes.lastUpdated);
+		lastUpdate = lastUpdate.getDay();
+	}else
+		lastUpdate = -1; // Only equal to -1 when a cache hasn't been init yet. (ie. node startup)
+	
+	if(currentDay > lastUpdate || currentDay < lastUpdate || lastUpdate == -1){
+		request.get(URL.get_products).then(response=>{
+			res.header("Access-Control-Allow-Origin", "*");
+			res.send(response.data);
 		
-		var updated = new Date();
-		updated = updated.getTime();
+			var updated = new Date();
+			updated = updated.getTime();
 
-		cache.classes.lastUpdated = updated;
-		cache.classes.data = response.data;
+			cache.classes.lastUpdated = updated;
+			cache.classes.data = response.data;
 		
-		next();
-	});
+			console.log(cache.classes.lastUpdated);
+		
+			next();
+		}).catch(err=>{
+			console.log(err.data);
+			res.send(404);
+			next();
+		});
+	}else{
+		res.send(200, cache.classes); // if classes are less than a day old, cached copy is sent
+	}
 });
 
 //used for sales, WIP
@@ -99,26 +124,41 @@ server.post('/ping', (req, res, next)=>{
 });
 
 //sends class metadata, saves a copy as well!
+//TODO: Maybe update the metadata once per hour rather than once per day...
+//TODO: Also add manual tracking of metadata throughout the hour until data is refreshed...
 server.get('/get/classmeta', (req, res, next)=>{
 	var request = network.getApiService();
+	var lastUpdate;
+	var currentDay = new Date();
+	currentDay = currentDay.getDay();
 	
-	request.get(URL.get_availability_slots, {
-		params: req.query
-	}).then(response=>{
-		res.send(response.data);
-		
-		var updated = new Date();
-		updated = updated.getTime();
-
-		cache.classmeta.lastUpdated = updated;
-		cache.classmeta.data = response.data;
-		
-		next();
-	}).catch(err=>{
-		console.log(err);
-		res.send(406, err);
-		next();
-	});
+	if(cache.classmeta.lastUpdated !== undefined){
+		lastUpdate = new Date(cache.classes.lastUpdated);
+		lastUpdate = lastUpdate.getDay();
+	}else
+		lastUpdate = -1; // Only equal to -1 when a cache hasn't been init yet. (ie. node startup)
+	
+	if(currentDay > lastUpdate || currentDay < lastUpdate || currentDay == -1){
+		request.get(URL.get_availability_slots, {
+			params: req.query
+		}).then(response=>{
+			res.send(response.data);
+			
+			var updated = new Date();
+			updated = updated.getTime();
+	
+			cache.classmeta.lastUpdated = updated;
+			cache.classmeta.data = response.data;
+			
+			next();
+		}).catch(err=>{
+			console.log(err);
+			res.send(406, err);
+			next();
+		});
+	}else{
+		res.send(200, cache.classmeta);
+	}
 });
 
 server.listen(process.env.PORT, process.env.IP, ()=>{
