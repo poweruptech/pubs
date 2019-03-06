@@ -13,28 +13,23 @@ const bookeo = axios.create({
 	}
 });
 
+//TODO: Remove implicit calling of server.next();
+
 /**
- * Stores all network related functions and data.
+ * Stores all network related functions
  * @module Network
  */
 var network = {
-    data: {
-        customers: []
-    },
-
-    status: {
-
-    },
-    
     /**
      * @memberof Network
      * @function authUser
+     * @param {Object} server
+     * @param {Array}  list
      * @param {String} username
      * @param {String} password
-     * @param {Function} next
      */
-    authUser: function(server, username, password){
-        for(let customer of this.data.customers){
+    authUser: function(server, list, username, password){
+        for(let customer of list.customers){
             if(customer.emailAddress == username){
                 bookeo.get(`customers/{customer.id}/auth`, {
 					params: password
@@ -48,6 +43,7 @@ var network = {
                         server.next();
                     }
 				}).catch(err=>{
+				    console.log(err.response.data);
                     server.res.send(403);
                     server.next();
 				});
@@ -111,7 +107,7 @@ var network = {
             return server.next();
         }).catch(err=>{
             server.res.send(err.response.data);
-            console.error(err);
+            console.error(err.response.data);
             return server.next();
         });
     },
@@ -123,11 +119,7 @@ var network = {
      * @function updateCustomerList
      */
     updateCustomerList: function(){
-        bookeo.get('customers').then(response=>{
-            this.data.customers = response.data.data;
-        }).catch(err=>{
-           console.log(err.response.data);
-        });
+        return bookeo.get('customers');
     }
 };
 

@@ -182,6 +182,7 @@ function parseDate(dateStr){
 }
 	
 /**
+ * Can be used for filtering class listings
  * @func search
  * @param  { Array } arr Array of class listings
  * @param  { Object } options Criteria used when searching within class listings

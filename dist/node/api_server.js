@@ -14,7 +14,8 @@ const network = require('./dist/network');
 
 var cache = {
 	classes: {},
-	classmeta: {}
+	classmeta: {},
+	customers: {}
 };
 
 server.use((req, res, next) => {
@@ -25,7 +26,9 @@ server.use((req, res, next) => {
 server.use(restify.plugins.queryParser());
 server.use(restify.plugins.bodyParser());
 
-//NOTE: network.request() automatically calls next()
+//NOTE: network.request() automatically calls next();
+
+//TODO: Remove implicit calling of next();
 
 server.get('/', (req, res, next)=>{
 	res.send("hello world");
@@ -34,12 +37,31 @@ server.get('/', (req, res, next)=>{
 
 //user auth, still a WIP.
 server.get('/auth/user', (req, res, next)=>{
-	network.authUser(req.query.username, req.query.password, next);
-});
-
-//gets customer list, a copy should be saved, but doesn't happen yet.
-server.get('/get/customers', (req, res, next)=>{
-	network.request({req:req, res:res, next:next}, URL.get_customers);
+	var server = {req:req, res:res, next:next};
+	
+	var lastUpdate;
+	var currentDay = new Date();
+	currentDay = currentDay.getDay();
+	
+	if(cache.customers.lastUpdated !== undefined){
+		lastUpdate = new Date(cache.customers.lastUpdated);
+		lastUpdate = lastUpdate.getDay();
+	}else
+		lastUpdate = -1;
+		
+	/**
+	 * if customer cache is older than a day, cache is refreshed
+	 * 
+	 * might choose to manually update the cache, and then refresh the cache 
+	 * once per week to coincide with the Bookeo database.
+	 */
+	if(currentDay > lastUpdate || currentDay < lastUpdate || lastUpdate == -1){
+		network.updateCustomerList().then(result=>{
+			cache.customer.data = result.data.data;	
+		});
+	}
+	
+	network.authUser(server, cache.customers, req.query.username, req.query.password);
 });
 
 //sends class list. saves a copy as well!
@@ -55,6 +77,7 @@ server.get('/get/classes', (req, res, next)=>{
 	}else
 		lastUpdate = -1; // Only equal to -1 when a cache hasn't been init yet. (ie. node startup)
 	
+	//if cache is older than a day, cache is refreshed
 	if(currentDay > lastUpdate || currentDay < lastUpdate || lastUpdate == -1){
 		request.get(URL.get_products).then(response=>{
 			res.header("Access-Control-Allow-Origin", "*");
@@ -158,6 +181,7 @@ server.get('/get/classmeta', (req, res, next)=>{
 		});
 	}else{
 		res.send(200, cache.classmeta);
+		next();
 	}
 });
 
