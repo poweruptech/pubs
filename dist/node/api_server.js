@@ -150,6 +150,10 @@ server.post('/ping', (req, res, next)=>{
 //TODO: Maybe update the metadata once per hour rather than once per day...
 //TODO: Also add manual tracking of metadata throughout the hour until data is refreshed...
 server.get('/get/classmeta', (req, res, next)=>{
+	if(req.query == undefined){
+		res.send(406,)
+	}
+	
 	var request = network.getApiService();
 	var lastUpdate;
 	var currentDay = new Date();
@@ -185,6 +189,6 @@ server.get('/get/classmeta', (req, res, next)=>{
 	}
 });
 
-server.listen(process.env.PORT, process.env.IP, ()=>{
+server.listen(40000, "127.0.0.1", ()=>{
 	console.log("Server is running at:", server.url);
 });
