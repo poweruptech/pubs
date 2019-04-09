@@ -1,6 +1,6 @@
 /*global expect*/
 
-import * as utils from '../src/utils.js';
+//import * as utils from '../src/utils.js';
 
 var exampleClassListings = {
     data:[]

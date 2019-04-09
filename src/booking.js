@@ -28,7 +28,7 @@ Booking.prototype = {
 	 */
 	send: function(){
 		if(this.data == undefined)
-			throw new Error("There is no data to be sent");
+			throw new Error("There is no data to be sent. Booking cannot be created");
 		else{
 			if(this.data.eventId == undefined)
 				throw new Error("An Event ID must be specified");

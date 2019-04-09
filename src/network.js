@@ -149,9 +149,9 @@ function request(method, url, query, data){
 	return new Promise((resolve, reject) => {
 		let xmlrequest = new XMLHttpRequest();
 		if(query !== undefined)
-			xmlrequest.open(method, (url + query));
+			xmlrequest.open(method, (url + query), true);
 		else
-			xmlrequest.open(method, url);
+			xmlrequest.open(method, url, true);
 		xmlrequest.responseType = "json";
 		xmlrequest.onload = function(){
 			if(xmlrequest.status >= 200 && xmlrequest.status < 400)

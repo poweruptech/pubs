@@ -1,16 +1,18 @@
+var $base = "https://poweruptaservices.com/";
+
 var URL = {
-	$base: "https://powerupnode.fwd.wf/",
-	auth_cust: "https://powerupnode.fwd.wf/auth/cust",
-	create_booking: "https://powerupnode.fwd.wf/create/booking",
-	create_customer: "https://powerupnode.fwd.wf/create/customer",
-	create_hold: "https://powerupnode.fwd.wf/create/hold",
-	delete_hold: "https://powerupnode.fwd.wf/delete/hold",
-	get_booking: "https://powerupnode.fwd.wf/get/booking",
-	get_availability: "https://powerupnode.fwd.wf/get/classmeta",
-	get_classes: "https://powerupnode.fwd.wf/get/classes",
-	get_class_meta: "https:powerupnode.fwd.wf/get/classmeta",
-	get_customers: "https://powerupnode.fwd.wf/get/customers",
-	test_url: "https://powerupnode.fwd.wf/test"
+	$base: "https://poweruptaservices.com/",
+	auth_cust: $base + "auth/cust",
+	create_booking: $base + "create/booking",
+	create_customer: $base + "create/customer",
+	create_hold: $base + "create/hold",
+	delete_hold: $base + "delete/hold",
+	get_booking: $base + "get/booking",
+	get_availability: $base + "get/classmeta",
+	get_classes: $base + "get/classes",
+	get_class_meta: $base + "get/classmeta",
+	get_customers: $base + "get/customers",
+	test_url: $base + "test"
 };
 
 Object.freeze(URL);

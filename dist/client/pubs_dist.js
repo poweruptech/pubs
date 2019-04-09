@@ -153,19 +153,20 @@
 		search: search
 	});
 
+	var $base = "https://poweruptaservices.com/";
 	var URL = {
-		$base: "https://powerupnode.fwd.wf/",
-		auth_cust: "https://powerupnode.fwd.wf/auth/cust",
-		create_booking: "https://powerupnode.fwd.wf/create/booking",
-		create_customer: "https://powerupnode.fwd.wf/create/customer",
-		create_hold: "https://powerupnode.fwd.wf/create/hold",
-		delete_hold: "https://powerupnode.fwd.wf/delete/hold",
-		get_booking: "https://powerupnode.fwd.wf/get/booking",
-		get_availability: "https://powerupnode.fwd.wf/get/classmeta",
-		get_classes: "https://powerupnode.fwd.wf/get/classes",
-		get_class_meta: "https:powerupnode.fwd.wf/get/classmeta",
-		get_customers: "https://powerupnode.fwd.wf/get/customers",
-		test_url: "https://powerupnode.fwd.wf/test"
+		$base: "https://poweruptaservices.com/",
+		auth_cust: $base + "auth/cust",
+		create_booking: $base + "create/booking",
+		create_customer: $base + "create/customer",
+		create_hold: $base + "create/hold",
+		delete_hold: $base + "delete/hold",
+		get_booking: $base + "get/booking",
+		get_availability: $base + "get/classmeta",
+		get_classes: $base + "get/classes",
+		get_class_meta: $base + "get/classmeta",
+		get_customers: $base + "get/customers",
+		test_url: $base + "test"
 	};
 	Object.freeze(URL);
 
@@ -218,9 +219,9 @@
 		return new Promise((resolve, reject) => {
 			let xmlrequest = new XMLHttpRequest();
 			if(query !== undefined)
-				xmlrequest.open(method, (url + query));
+				xmlrequest.open(method, (url + query), true);
 			else
-				xmlrequest.open(method, url);
+				xmlrequest.open(method, url, true);
 			xmlrequest.responseType = "json";
 			xmlrequest.onload = function(){
 				if(xmlrequest.status >= 200 && xmlrequest.status < 400)
@@ -291,7 +292,7 @@
 	Booking.prototype = {
 		send: function(){
 			if(this.data == undefined)
-				throw new Error("There is no data to be sent");
+				throw new Error("There is no data to be sent. Booking cannot be created");
 			else{
 				if(this.data.eventId == undefined)
 					throw new Error("An Event ID must be specified");
@@ -387,11 +388,11 @@
 		childParticipant: ChildParticipant
 	};
 
+	exports.URL = URL;
 	exports.cache = network;
+	exports.factory = factory;
 	exports.network = network;
 	exports.utils = utils;
-	exports.factory = factory;
-	exports.URL = URL;
 
 	Object.defineProperty(exports, '__esModule', { value: true });
 

@@ -25,6 +25,7 @@ server.use((req, res, next) => {
 
 server.use(restify.plugins.queryParser());
 server.use(restify.plugins.bodyParser());
+server.use(restify.plugins.gzipResponse());
 
 //NOTE: network.request() automatically calls next();
 
@@ -59,6 +60,12 @@ server.get('/auth/user', (req, res, next)=>{
 		network.updateCustomerList().then(result=>{
 			cache.customer.data = result.data.data;	
 		});
+	}
+	
+	for(var customer of cache.customers.data){
+		if(customer){
+			
+		}
 	}
 	
 	network.authUser(server, cache.customers, req.query.username, req.query.password);
@@ -98,6 +105,8 @@ server.get('/get/classes', (req, res, next)=>{
 			next();
 		});
 	}else{
+		console.log("Classes are still fresh!");
+		res.cache({maxAge: 86400});
 		res.send(200, cache.classes); // if classes are less than a day old, cached copy is sent
 	}
 });
@@ -107,8 +116,21 @@ server.get('/validate/promo', (req, res, next)=>{
 	network.request({req:req, res:res, next:next}, URL.check_validity);
 });
 
-//used for creating bookings, still a WIP??
-server.get('/create/booking',(req,res,next)=>{
+//Booking creation
+//TODO: Track available seating
+server.post('/create/booking',(req,res,next)=>{
+	
+	let classmeta;
+	for(let i = 0; i < cache.classmeta.length; i++){
+		if(req.data.eventId == cache.classmeta[i].eventId){
+			classmeta = cache.classmeta[i];
+			break;
+		}
+	}
+	
+	
+	classmeta.numSeatsAvailable -= 1;
+	
 	network.request({req:req, res:res,next:next}, URL.create_booking, req.data);
 });
 
@@ -151,7 +173,8 @@ server.post('/ping', (req, res, next)=>{
 //TODO: Also add manual tracking of metadata throughout the hour until data is refreshed...
 server.get('/get/classmeta', (req, res, next)=>{
 	if(req.query == undefined){
-		res.send(406,)
+		res.send(406);
+		next();
 	}
 	
 	var request = network.getApiService();
@@ -179,8 +202,7 @@ server.get('/get/classmeta', (req, res, next)=>{
 			
 			next();
 		}).catch(err=>{
-			console.log(err);
-			res.send(406, err);
+			res.send(406, err.response);
 			next();
 		});
 	}else{
@@ -189,6 +211,8 @@ server.get('/get/classmeta', (req, res, next)=>{
 	}
 });
 
+
+//A2 Hosting
 server.listen(40000, "127.0.0.1", ()=>{
 	console.log("Server is running at:", server.url);
 });
