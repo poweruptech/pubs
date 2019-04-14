@@ -130,8 +130,7 @@ server.post('/create/booking',(req,res,next)=>{
 	
 	
 	classmeta.numSeatsAvailable -= 1;
-	
-	network.request({req:req, res:res,next:next}, URL.create_booking, req.data);
+	network.request({req:req, res:res, next:next}, URL.create_booking, {data: req.body});
 });
 
 //customer creation is a WIP.
@@ -140,10 +139,10 @@ server.post('/create/customer', (req, res, next)=>{
 	network.createCustomer(req.body).then(response=>{
 		server.res.send(200);
 		this.updateCustomerList();
-		return server.next();
+		return next();
 	}).catch(err=>{
 		server.res.send(err);
-        return server.next();
+        return next();
 	});
 });
 
@@ -211,7 +210,25 @@ server.get('/get/classmeta', (req, res, next)=>{
 	}
 });
 
+function init(){
+	var net = network.getApiService();
 
+	net.get(URL.get_customers).then(res=>{
+		var updated = new Date();
+		updated = updated.getTime();
+		cache.customers.data = res.data.data;
+		cache.customers.lastUpdated = updated;
+	});
+	
+	net.get(URL.get_products).then(res=>{
+		var updated = new Date();
+		updated = updated.getTime();
+		cache.classes.data = res.data.data;
+		cache.classes.lastUpdated = updated;
+	});
+}
+
+init();
 //A2 Hosting
 server.listen(40000, "127.0.0.1", ()=>{
 	console.log("Server is running at:", server.url);

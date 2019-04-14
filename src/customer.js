@@ -32,7 +32,6 @@ Customer.prototype = {
 	assign: function(data){
 		Object.assign(this.data, data);
 	},
-
 	/**
 	 * Validates Customer's info on form submission
 	 * @memberof Customer

@@ -13,7 +13,7 @@ import { generateDate } from './utils.js';
  * @return {Promise}          
  */
 function auth(uname, pword){
-	return request("POST", URL.auth_cust, undefined, {username: uname, password: pword});
+	return request("POST", URL.auth_cust, {data: {username: uname, password: pword}});
 }
 
 /**
@@ -100,7 +100,7 @@ function fetch(periods){
  * @return {Promise} When resolved, the promise returns the availability of Bookeo products (31 days)
  */
 function getClassMetadata(startDate){
-	return request("GET", URL.get_availability, generateDate(startDate));
+	return request("GET", URL.get_availability, {params: generateDate(startDate)});
 }
 
 /**
@@ -121,7 +121,7 @@ function getAllClasses(){
  * @returns {Promise}
  */
 function newCustomer(customer){
-	return request("POST", URL.create_customer, undefined, customer.data);
+	return request("POST", URL.create_customer, {data: customer.data});
 }
 	
 /**
@@ -136,34 +136,36 @@ function ping(target){
 
 /**
  * Used for making HTTP requests
- * @memberof Network
  * @function request
- * @todo Must implement verbose error descriptions
- * @param  {String} method - Method to use when making an HTTP request
- * @param  {String} url - Destination for the request
- * @param  {String} query - Query string to be appended to the URL (Optional)
- * @param  {JSON Object} - JSON data to be send along with the request (Optional)
- * @return {Promise} - When resolved, the promise returns the response received
+ * @param  {String} method Method to use when making an HTTP request
+ * @param  {String} url Destination for the request
+ * @param  {Object} options
+ * @param  {String} options.query
+ * @param  {JSON}   options.data
+ * @return {Promise}  When resolved, the promise returns the response received
  */
-function request(method, url, query, data){
-	return new Promise((resolve, reject) => {
+function request(method, url, options){
+	return new Promise((resolve, reject)=>{
 		let xmlrequest = new XMLHttpRequest();
-		if(query !== undefined)
-			xmlrequest.open(method, (url + query), true);
-		else
-			xmlrequest.open(method, url, true);
+		
+		options.query = options.query == undefined ? "" : options.query;
+		
+		xmlrequest.open(method, (url + options.query), true);
 		xmlrequest.responseType = "json";
+		
 		xmlrequest.onload = function(){
 			if(xmlrequest.status >= 200 && xmlrequest.status < 400)
 				resolve(xmlrequest.response);
 			else
 				reject(xmlrequest.response);
 		};
-		xmlrequest.onerror = function(){
-			reject("Unable to retrieve data");
+		
+		xmlrequest.onerror = function(err){
+			reject(err);
 		};
-		if(data !== undefined)
-			xmlrequest.send(data);
+		
+		if(options.data !== undefined)
+			xmlrequest.send(options.data);
 		else
 			xmlrequest.send();
 	});

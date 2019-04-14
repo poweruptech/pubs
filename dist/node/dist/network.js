@@ -94,14 +94,15 @@ var network = {
      * @function request
      * @param {Object} server
      * @param {String} url
-     * @param {String} params
-     * @param {String} data
+     * @param {Object} options
+     * @param {String} options.params
+     * @param {String} options.data
      */
 
-    request: function(server, url, params, data){
+    request: function(server, url, options){
         bookeo.get(url, {
-            params: params,
-            data: data
+            params: options.params,
+            data: options.data
         }).then((response)=>{
             server.res.send(response.data);
             return server.next();

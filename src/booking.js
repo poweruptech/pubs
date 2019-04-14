@@ -17,7 +17,6 @@ function Booking(data){
 }
 
 Booking.prototype = {
-
 	/**
 	 * Sends the booking and data to Bookeo.
 	 * @memberof Booking
@@ -35,7 +34,8 @@ Booking.prototype = {
 			if(this.data.customer == undefined || this.data.customerId == undefined)
 				throw new Error("A Customer or Customer ID must be specified");
 		}
-		request("POST", URL.create_booking, undefined, JSON.stringify(this.data));
+		
+		return request("POST", URL.create_booking,{data: JSON.stringify(this.data)});
 	},
 	/**
 	 * Sets data for the booking.
