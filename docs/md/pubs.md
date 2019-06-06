@@ -6,36 +6,47 @@
     -   [Parameters][2]
     -   [send][3]
     -   [setData][4]
--   [ChildParticipant][5]
-    -   [validate][6]
--   [Customer][7]
-    -   [Parameters][8]
+-   [save][5]
+    -   [Parameters][6]
+-   [dataToUpdate][7]
+-   [ChildParticipant][8]
     -   [validate][9]
--   [Hold][10]
-    -   [create][11]
-        -   [Parameters][12]
-    -   [delete][13]
--   [Network][14]
-    -   [auth][15]
-        -   [Parameters][16]
-    -   [fetch][17]
-        -   [Parameters][18]
-    -   [getClassAvailability][19]
-        -   [Parameters][20]
-    -   [getAllClasses][21]
-    -   [newCustomer][22]
+-   [Customer][10]
+    -   [Parameters][11]
+    -   [validate][12]
+-   [Hold][13]
+    -   [create][14]
+        -   [Parameters][15]
+    -   [delete][16]
+-   [Network][17]
+    -   [auth][18]
+        -   [Parameters][19]
+    -   [fetch][20]
+        -   [Parameters][21]
+    -   [getClassAvailability][22]
         -   [Parameters][23]
-    -   [request][24]
-        -   [Parameters][25]
--   [Utils][26]
-    -   [formatDate][27]
-        -   [Parameters][28]
-    -   [formatParameters][29]
-        -   [Parameters][30]
-    -   [generateDate][31]
-        -   [Parameters][32]
-    -   [parseDate][33]
+    -   [getAllClasses][24]
+    -   [newCustomer][25]
+        -   [Parameters][26]
+-   [catch][27]
+-   [ping][28]
+    -   [Parameters][29]
+-   [request][30]
+    -   [Parameters][31]
+-   [Utils][32]
+    -   [formatDate][33]
         -   [Parameters][34]
+    -   [formatParameters][35]
+        -   [Parameters][36]
+    -   [generateDate][37]
+        -   [Parameters][38]
+    -   [parseDate][39]
+        -   [Parameters][40]
+-   [processListings][41]
+    -   [Parameters][42]
+-   [search][43]
+    -   [Parameters][44]
+-   [arr][45]
 
 ## Booking
 
@@ -43,21 +54,38 @@ A barebones container for a Booking.
 
 ### Parameters
 
--   `data` **[Object][35]** Data to be sent with the Booking. Required data is 
+-   `data` **[Object][46]** Data to be sent with the Booking. Required data is 
     specified in the Bookeo API.
 
 ### send
 
 Sends the booking and data to Bookeo.
 
--   Throws **[Error][36]** If an eventID and customer, or customerId are not 
+-   Throws **[Error][47]** If an eventID and customer, or customerId are not 
     specified, the Booking will not be completed.
 
-Returns **[Promise][37]** 
+Returns **[Promise][48]** 
 
 ### setData
 
 Sets data for the booking.
+
+## save
+
+### Parameters
+
+-   `key` **[String][49]** Key used for saving data
+-   `data` **[Object][46]** Data to save onto local computer
+
+## dataToUpdate
+
+Saved data in key will be compared to newData and any discrepencies
+between the two data sets will be corrected. This is done to ensure that 
+only relevant information is updated as updating the entire dataset might
+be inefficient in cases where the dataset is of considerable size.
+
+Debating on whether to replace data when in String format, or just 
+through JSON format.
 
 ## ChildParticipant
 
@@ -71,7 +99,7 @@ Container for Customer
 
 ### Parameters
 
--   `data` **[Object][35]** 
+-   `data` **[Object][46]** 
 
 ### validate
 
@@ -85,15 +113,15 @@ Creates a hold for a given listing/event
 
 #### Parameters
 
--   `listing` **[Object][35]** Listing/event which will be placed on hold
+-   `listing` **[Object][46]** Listing/event which will be placed on hold
 
-Returns **[Promise][37]** 
+Returns **[Promise][48]** 
 
 ### delete
 
 Removes the hold from the listing/event
 
-Returns **[Promise][37]** 
+Returns **[Promise][48]** 
 
 ## Network
 
@@ -103,23 +131,23 @@ Used for authenticating user login
 
 #### Parameters
 
--   `uname` **[String][38]** Username
--   `pword` **[String][38]** Password
+-   `uname` **[String][49]** Username
+-   `pword` **[String][49]** Password
 
-Returns **[Promise][37]** 
+Returns **[Promise][48]** 
 
 ### fetch
 
 fetches all user created events and currently available events within
 the periods specified. A period is defined as 31 days. Periods are
-measured from the current date. Data is automatically stored in
-Powerup.data.unprocessed
+measured from the current date. Data is stored in localstorage. "Class products"
+are stored in "classes", and class metadata in "classMeta".
 
 #### Parameters
 
--   `periods` **[Number][39]** Num of periods to fetch data
+-   `periods` **[Number][50]** Num of periods to fetch data
 
-Returns **[Promise][37]** 
+Returns **[Promise][48]** 
 
 ### getClassAvailability
 
@@ -129,15 +157,15 @@ calls may have to be made.
 
 #### Parameters
 
--   `startDate` **[Date][40]** Date to begin with
+-   `startDate` **[Date][51]** Date to begin with
 
-Returns **[Promise][37]** When resolved, the promise returns the availability of Bookeo products (31 days)
+Returns **[Promise][48]** When resolved, the promise returns the availability of Bookeo products (31 days)
 
 ### getAllClasses
 
 Calling this function returns all available Bookeo products
 
-Returns **[Promise][37]** When resolved, the promise will return all Bookeo products
+Returns **[Promise][48]** When resolved, the promise will return all Bookeo products
 
 ### newCustomer
 
@@ -145,21 +173,39 @@ Creates a new Customer in Bookeo's database.
 
 #### Parameters
 
--   `customer` **[Customer][41]** Customer to be sent to Bookeo
+-   `customer` **[Customer][52]** Customer to be sent to Bookeo
 
-Returns **[Promise][37]** 
+Returns **[Promise][48]** 
 
-### request
+## catch
+
+Checks if class products are already stored on the browser. If
+they are, the server is polled for updates. If there aren't, the local
+version is used. If there are updates, they will be pulled from the 
+server and stored locally.
+
+## ping
+
+Pings the host for any updates
+
+### Parameters
+
+-   `data`  What you intend to update (ex. classes, class metadata, etc.)
+    Not usable ATM...
+
+## request
 
 Used for making HTTP requests
 
-#### Parameters
+### Parameters
 
--   `method` **[String][38]** Method to use when making an HTTP request
--   `url` **[String][38]** Destination for the request
--   `query` **[String][38]** Query string to be appended to the URL (Optional)
+-   `method` **[String][49]** Method to use when making an HTTP request
+-   `url` **[String][49]** Destination for the request
+-   `options` **[Object][46]** 
+    -   `options.query` **[String][49]** 
+    -   `options.data` **[JSON][53]** 
 
-Returns **[Promise][37]** When resolved, the promise returns the response received
+Returns **[Promise][48]** When resolved, the promise returns the response received
 
 ## Utils
 
@@ -169,10 +215,10 @@ Formats a date into the desired string format
 
 #### Parameters
 
--   `date` **[Date][40]** Date object to format
--   `format` **[String][38]** format of date
+-   `date` **[Date][51]** Date object to format
+-   `format` **[String][49]** format of date
 
-Returns **[String][38]** 
+Returns **[String][49]** 
 
 ### formatParameters
 
@@ -180,9 +226,9 @@ Converts the provided JSON object into a query string
 
 #### Parameters
 
--   `obj` **[Object][35]**  JSON object intended to be formatted into a JSON query string (key:val pairs)
+-   `obj` **[Object][46]**  JSON object intended to be formatted into a JSON query string (key:val pairs)
 
-Returns **[String][38]** Query string
+Returns **[String][49]** Query string
 
 ### generateDate
 
@@ -190,9 +236,9 @@ Generates a start + end time in ISO format and returns it as a query string
 
 #### Parameters
 
--   `startDate` **[Date][40]** Starting date to use
+-   `startDate` **[Date][51]** Starting date to use
 
-Returns **[String][38]** Formatted query string
+Returns **[String][49]** Formatted query string
 
 ### parseDate
 
@@ -200,9 +246,40 @@ Parses a date
 
 #### Parameters
 
--   `dateStr` **[String][38]** Date string to parse (DMY)
+-   `dateStr` **[String][49]** Date string to parse (DMY)
 
-Returns **[Date][40]** 
+Returns **[Date][51]** 
+
+## processListings
+
+### Parameters
+
+-   `data` **[Object][46]** Listings to process
+-   `options` **[Object][46]** Settings for the listing processorOptions Schema
+    {
+    	type (String): Type of class (Defaults to 'fixed')
+    	include (Object): only include given objects
+    	locationToSearch (String): Where to search for string at (ie. description, title, anywhere). Defaults to anywhere
+    }
+-   `storage` **[Object][46]** (Optional) Location to store processed listings
+
+Returns **[Array][54]** Processed listings
+
+## search
+
+Can be used for filtering class listings
+
+### Parameters
+
+-   `arr` **[Array][54]** Array of class listings
+-   `options` **[Object][46]** Criteria used when searching within class listings
+
+Returns **[Array][54]** Results of the search
+
+## arr
+
+TODO: Add exclusion search; basically streamline include and exclude search.
+Making them both possible within a single for loop block would be very nice.
 
 [1]: #booking
 
@@ -212,76 +289,102 @@ Returns **[Date][40]**
 
 [4]: #setdata
 
-[5]: #childparticipant
+[5]: #save
 
-[6]: #validate
+[6]: #parameters-1
 
-[7]: #customer
+[7]: #datatoupdate
 
-[8]: #parameters-1
+[8]: #childparticipant
 
-[9]: #validate-1
+[9]: #validate
 
-[10]: #hold
+[10]: #customer
 
-[11]: #create
+[11]: #parameters-2
 
-[12]: #parameters-2
+[12]: #validate-1
 
-[13]: #delete
+[13]: #hold
 
-[14]: #network
+[14]: #create
 
-[15]: #auth
+[15]: #parameters-3
 
-[16]: #parameters-3
+[16]: #delete
 
-[17]: #fetch
+[17]: #network
 
-[18]: #parameters-4
+[18]: #auth
 
-[19]: #getclassavailability
+[19]: #parameters-4
 
-[20]: #parameters-5
+[20]: #fetch
 
-[21]: #getallclasses
+[21]: #parameters-5
 
-[22]: #newcustomer
+[22]: #getclassavailability
 
 [23]: #parameters-6
 
-[24]: #request
+[24]: #getallclasses
 
-[25]: #parameters-7
+[25]: #newcustomer
 
-[26]: #utils
+[26]: #parameters-7
 
-[27]: #formatdate
+[27]: #catch
 
-[28]: #parameters-8
+[28]: #ping
 
-[29]: #formatparameters
+[29]: #parameters-8
 
-[30]: #parameters-9
+[30]: #request
 
-[31]: #generatedate
+[31]: #parameters-9
 
-[32]: #parameters-10
+[32]: #utils
 
-[33]: #parsedate
+[33]: #formatdate
 
-[34]: #parameters-11
+[34]: #parameters-10
 
-[35]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[35]: #formatparameters
 
-[36]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error
+[36]: #parameters-11
 
-[37]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
+[37]: #generatedate
 
-[38]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[38]: #parameters-12
 
-[39]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[39]: #parsedate
 
-[40]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Date
+[40]: #parameters-13
 
-[41]: #customer
+[41]: #processlistings
+
+[42]: #parameters-14
+
+[43]: #search
+
+[44]: #parameters-15
+
+[45]: #arr
+
+[46]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+
+[47]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Error
+
+[48]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
+
+[49]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+
+[50]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+
+[51]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Date
+
+[52]: #customer
+
+[53]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/JSON
+
+[54]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array

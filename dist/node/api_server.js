@@ -7,16 +7,29 @@ const URL = {
 	create_booking: 'bookings'
 };
 
+//const {google} = require("googleapis");
+const fs = require('fs');
 const restify = require('restify');
-const server = restify.createServer();
-
+const server = restify.createServer({name:"Power-Up Services"});
 const network = require('./dist/network');
+
+const admin_credentials = {
+	username: 'tamasin',
+	password: 'powerupta'
+};
+
+//var sheets;
 
 var cache = {
 	classes: {},
 	classmeta: {},
 	customers: {}
 };
+
+fs.open('user_contact.csv', 'a', (err, fd)=>{
+    if(err)
+    	console.log(err);
+});
 
 server.use((req, res, next) => {
 	res.header("Access-Control-Allow-Origin", "*");
@@ -33,7 +46,54 @@ server.use(restify.plugins.gzipResponse());
 
 server.get('/', (req, res, next)=>{
 	res.send("hello world");
-	next();
+	return next();
+});
+
+
+//experimental admin login panel
+//for now, it'll only return a CSV file containing contact info
+server.get('/admin', (req, res, next)=>{
+	let file = fs.createReadStream('./html/admin.html');
+	res.setHeader('Content-type', 'text/html');
+	file.pipe(res);
+	return next();
+});
+
+server.get('/contactinfo', (req, res, next)=>{
+	let file = fs.createReadStream('user_contact.csv');
+	res.setHeader('Content-disposition', 'attachment; filename=user_contact.csv');
+	res.setHeader('Content-type', 'text/csv');
+	res.writeHead(206);
+	file.pipe(res);
+	
+	file.on('end', ()=>{
+		console.log('pipe completed');
+		return next();
+	})
+})
+
+//Used for authenication of admin login
+server.post('/login', (req, res, next)=>{
+    req.body = JSON.parse(req.body);
+	if(req.body.username == undefined || req.body.password == undefined){
+		res.send(401);
+		return next();
+	}
+	if(req.body.username == admin_credentials.username && req.body.password == admin_credentials.password){
+		let file = fs.createReadStream('user_contact.csv');
+		res.setHeader('Content-disposition', 'attachment; filename=user_contact.csv');
+		res.setHeader('Content-type', 'text/csv');
+		res.writeHead(206);
+		file.pipe(res);
+		
+		file.on('end', ()=>{
+			console.log("pipe completed");
+			return next();
+		});
+	}else{
+		res.send(401);
+		return next();
+	}
 });
 
 //user auth, still a WIP.
@@ -98,11 +158,11 @@ server.get('/get/classes', (req, res, next)=>{
 		
 			console.log(cache.classes.lastUpdated);
 		
-			next();
+			return next();
 		}).catch(err=>{
 			console.log(err.data);
 			res.send(404);
-			next();
+			return next();
 		});
 	}else{
 		console.log("Classes are still fresh!");
@@ -138,7 +198,7 @@ server.post('/create/customer', (req, res, next)=>{
 	console.log(req.body);
 	network.createCustomer(req.body).then(response=>{
 		server.res.send(200);
-		this.updateCustomerList();
+		//update customer list manually...
 		return next();
 	}).catch(err=>{
 		server.res.send(err);
@@ -146,17 +206,60 @@ server.post('/create/customer', (req, res, next)=>{
 	});
 });
 
+server.post('/post/contactinfo', (req,res,next)=>{
+	try{
+		console.log("Before JSON parse...\n");
+		console.log(req.body);
+		
+		console.log("After JSON parse...\n");
+		req.body = JSON.parse(req.body);
+		
+		var data = req.body.name + ',' + req.body.phone + ',' + req.body.email + req.body.comments + '\n';
+		fs.appendFile('user_contact.csv', data, err=>{
+		    if(err)
+		        console.log(err);
+		});
+		
+		res.send(200);
+		
+		return next();
+	}catch(err){
+		res.send(404);
+		console.error(err);
+		return next();
+	}
+	/*
+	let reqdata = JSON.parse(req.data);
+	let spreadsheetId = '1SifK3uPXL3l7pbUyuq2hsd6xbCfK8PTACjBlmUrComQ';
+	
+	if(sheets == undefined)
+		sheets = google.sheets({version: 'v4', auth: ''});
+		
+		sheets.spreadsheets.values.append({
+			spreadsheetId,
+			range: 'Sheet1!A1:C',
+			valueInputOption: 'USER_ENTERED',
+			requestBody: {
+				values: [[reqdata.f_name, reqdata.l_name, reqdata.email]]
+			}
+		}).then(result=>{
+			res.send(200);
+		}).catch(err=>{
+			res.send(404);
+		});*/
+});
+
 
 //update checking!!
 server.post('/ping', (req, res, next)=>{
-	req = JSON.parse(req.data);
+	req.data = JSON.parse(req.data);
 	
 	if(cache[req.target] == undefined){
 		res.send(406, JSON.stringify({
 			status:"ERROR", 
 			reason: `Target "${req.target}" does not exist.`
 		}));
-		next();
+		return next();
 	}
 	
 	if(req.data.lastUpdated < cache[req.target].lastUpdated)
@@ -164,7 +267,7 @@ server.post('/ping', (req, res, next)=>{
 	else
 		res.send(200);
 		
-	next();
+	return next();
 });
 
 //sends class metadata, saves a copy as well!
@@ -173,7 +276,7 @@ server.post('/ping', (req, res, next)=>{
 server.get('/get/classmeta', (req, res, next)=>{
 	if(req.query == undefined){
 		res.send(406);
-		next();
+		return next();
 	}
 	
 	var request = network.getApiService();
@@ -210,12 +313,13 @@ server.get('/get/classmeta', (req, res, next)=>{
 	}
 });
 
+/*
 function init(){
 	var net = network.getApiService();
 
 	net.get(URL.get_customers).then(res=>{
 		var updated = new Date();
-		updated = updated.getTime();
+		updated = updated.getDate();
 		cache.customers.data = res.data.data;
 		cache.customers.lastUpdated = updated;
 	});
@@ -228,7 +332,7 @@ function init(){
 	});
 }
 
-init();
+init();*/
 //A2 Hosting
 server.listen(40000, "127.0.0.1", ()=>{
 	console.log("Server is running at:", server.url);

@@ -1,5 +1,5 @@
 import { network } from '../../network';
-import { cache } from '../../data';
+//import { cache } from '../../data';
 import { utils } from '../../utils';
 
 /*global Vue*/

@@ -35,7 +35,7 @@ var network = {
 					params: password
 				}).then(response =>{
                     if(response.status == 200){
-                        server.res.send(customer);
+                        server.res.send(JSON.stringify(customer));
                         server.next();
                     }
                     else{

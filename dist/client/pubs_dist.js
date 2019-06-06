@@ -171,7 +171,7 @@
 	Object.freeze(URL);
 
 	function auth(uname, pword){
-		return request("POST", URL.auth_cust, undefined, {username: uname, password: pword});
+		return request("POST", URL.auth_cust, {data: {username: uname, password: pword}});
 	}
 	function fetch(periods){
 		if(periods == 0)
@@ -204,24 +204,22 @@
 		});
 	}
 	function getClassMetadata(startDate){
-		return request("GET", URL.get_availability, generateDate(startDate));
+		return request("GET", URL.get_availability, {params: generateDate(startDate)});
 	}
 	function getAllClasses(){
 		return request("GET", URL.get_classes);
 	}
 	function newCustomer(customer){
-		return request("POST", URL.create_customer, undefined, customer.data);
+		return request("POST", URL.create_customer, {data: customer.data});
 	}
 	function ping(target){
 		return request("POST", URL.check_update, undefined, JSON.stringify(target));
 	}
-	function request(method, url, query, data){
-		return new Promise((resolve, reject) => {
+	function request(method, url, options){
+		return new Promise((resolve, reject)=>{
 			let xmlrequest = new XMLHttpRequest();
-			if(query !== undefined)
-				xmlrequest.open(method, (url + query), true);
-			else
-				xmlrequest.open(method, url, true);
+			options.query = options.query == undefined ? "" : options.query;
+			xmlrequest.open(method, (url + options.query), true);
 			xmlrequest.responseType = "json";
 			xmlrequest.onload = function(){
 				if(xmlrequest.status >= 200 && xmlrequest.status < 400)
@@ -229,11 +227,11 @@
 				else
 					reject(xmlrequest.response);
 			};
-			xmlrequest.onerror = function(){
-				reject("Unable to retrieve data");
+			xmlrequest.onerror = function(err){
+				reject(err);
 			};
-			if(data !== undefined)
-				xmlrequest.send(data);
+			if(options.data !== undefined)
+				xmlrequest.send(options.data);
 			else
 				xmlrequest.send();
 		});
@@ -249,148 +247,8 @@
 		request: request
 	});
 
-	function Hold(listing){
-	    this.listing = listing;
-	}
-	Hold.prototype = {
-	    create: function(listing){
-	        if(this.listing !== undefined){
-	            if(this.listing.eventId !== listing.eventId)
-	                this.delete();
-	            else
-	                return Promise.reject(new Error("Hold already present"));
-	        }
-	        this.listing = listing;
-	        return new Promise((resolve, reject)=>{
-	            request("POST", URL.create_hold, undefined, listing.data)
-	            .then(complete=>{
-	                Object.assign(this, complete);
-	                resolve();
-	            }).catch(err=>{
-	                reject(err);
-	            });
-	        });
-	    },
-	    delete: function(){
-	        return new Promise((resolve, reject)=>{
-	            request("DELETE", URL.delete_hold, undefined, this.id)
-	            .then(complete=>{
-	                resolve("Successfully deleted!");
-	            }).catch(err=>{
-	                reject(err);
-	            });
-	        });
-	    }
-	};
-
-	function Booking(data){
-		this.data = {};
-		this.hold = new Hold();
-		if(data !== undefined)
-			this.data = data;
-	}
-	Booking.prototype = {
-		send: function(){
-			if(this.data == undefined)
-				throw new Error("There is no data to be sent. Booking cannot be created");
-			else{
-				if(this.data.eventId == undefined)
-					throw new Error("An Event ID must be specified");
-				if(this.data.customer == undefined || this.data.customerId == undefined)
-					throw new Error("A Customer or Customer ID must be specified");
-			}
-			request("POST", URL.create_booking, undefined, JSON.stringify(this.data));
-		},
-		setData: function(data){this.data = data;}
-	};
-
-	function Customer(data){
-		this.auth = {
-			username: '',
-			password: ''
-		};
-		this.data = {
-			firstName: '',
-			lastName: '',
-			emailAddress: '',
-			phoneNumbers: [{
-				number: '',
-				type: ''
-			}]
-		};
-		this.status = {
-			errors: [],
-			fail: true
-		};
-		if(data !== undefined)
-			Object.assign(this.data, data);
-	}
-	Customer.prototype = {
-		assign: function(data){
-			Object.assign(this.data, data);
-		},
-		validate: function(){
-			this.status.errors = [];
-			let err = this.status.errors;
-			switch(0){
-				case this.data.firstName.length:
-					err.push("First Name is required");
-				case this.data.lastName.length:
-					err.push("Last Name is required");
-				case this.data.emailAddress.length:
-					err.push("Email Address is required");
-			}
-			if(!err.length)
-				this.status.fail = false;
-			else
-				this.status.fail = true;
-		}
-	};
-
-	function ChildParticipant(){
-		this.key = 0;
-		this.data = {
-			firstName: '',
-			lastName: '',
-			gender: 'unknown',
-			dateOfBirth: '',
-			customFields: []
-		};
-		this.status = {
-			errors: [],
-			fail: true
-		};
-		this.categoryIndex;
-		this.personId = 'PUNKNOWN';
-	}
-	ChildParticipant.prototype = {
-		validate: function(){
-			this.status.errors = [];
-			let err = this.status.errors;
-			switch(0){
-				case this.data.firstName.length:
-					err.push("First Name is required");
-				case this.data.lastName.length:
-					err.push("Last Name is required");
-				case this.data.dateOfBirth.length:
-					err.push("Date of Birth is required");
-			}
-			if(!err.length)
-				this.status.fail = false;
-			else
-				this.status.fail = true;
-		}
-	};
-
-	var factory = {
-		booking: Booking,
-		customer: Customer,
-		childParticipant: ChildParticipant
-	};
-
 	exports.URL = URL;
 	exports.cache = network;
-	exports.factory = factory;
 	exports.network = network;
 	exports.utils = utils;
 
